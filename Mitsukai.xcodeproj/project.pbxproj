@@ -1,0 +1,370 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		6D9055192DCE3D490023DEAE /* MitsukaiApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9055182DCE3D490023DEAE /* MitsukaiApp.swift */; };
+		6D90551B2DCE3D490023DEAE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D90551A2DCE3D490023DEAE /* ContentView.swift */; };
+		6D90551D2DCE3D4D0023DEAE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D90551C2DCE3D4D0023DEAE /* Assets.xcassets */; };
+		6D9055202DCE3D4D0023DEAE /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D90551F2DCE3D4D0023DEAE /* Preview Assets.xcassets */; };
+		6D90552A2DCE3FCF0023DEAE /* AnimeData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9055272DCE3FCF0023DEAE /* AnimeData.swift */; };
+		6D90552B2DCE3FCF0023DEAE /* Anime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9055282DCE3FCF0023DEAE /* Anime.swift */; };
+		6D90552C2DCE3FCF0023DEAE /* AnimeCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9055292DCE3FCF0023DEAE /* AnimeCardView.swift */; };
+		6D90552E2DCE53FC0023DEAE /* NavigationBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D90552D2DCE53FC0023DEAE /* NavigationBar.swift */; };
+		6D9055302DCE548B0023DEAE /* FeaturedCarousel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D90552F2DCE548B0023DEAE /* FeaturedCarousel.swift */; };
+		6D9055322DCE56660023DEAE /* AnimeSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9055312DCE56650023DEAE /* AnimeSection.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		6D9055152DCE3D490023DEAE /* Mitsukai.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Mitsukai.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6D9055182DCE3D490023DEAE /* MitsukaiApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MitsukaiApp.swift; sourceTree = "<group>"; };
+		6D90551A2DCE3D490023DEAE /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		6D90551C2DCE3D4D0023DEAE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		6D90551F2DCE3D4D0023DEAE /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		6D9055212DCE3D4D0023DEAE /* Mitsukai.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Mitsukai.entitlements; sourceTree = "<group>"; };
+		6D9055272DCE3FCF0023DEAE /* AnimeData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimeData.swift; sourceTree = "<group>"; };
+		6D9055282DCE3FCF0023DEAE /* Anime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Anime.swift; sourceTree = "<group>"; };
+		6D9055292DCE3FCF0023DEAE /* AnimeCardView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimeCardView.swift; sourceTree = "<group>"; };
+		6D90552D2DCE53FC0023DEAE /* NavigationBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NavigationBar.swift; sourceTree = "<group>"; };
+		6D90552F2DCE548B0023DEAE /* FeaturedCarousel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeaturedCarousel.swift; sourceTree = "<group>"; };
+		6D9055312DCE56650023DEAE /* AnimeSection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimeSection.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		6D9055122DCE3D480023DEAE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6D90550C2DCE3D480023DEAE = {
+			isa = PBXGroup;
+			children = (
+				6D9055172DCE3D490023DEAE /* Mitsukai */,
+				6D9055162DCE3D490023DEAE /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6D9055162DCE3D490023DEAE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6D9055152DCE3D490023DEAE /* Mitsukai.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6D9055172DCE3D490023DEAE /* Mitsukai */ = {
+			isa = PBXGroup;
+			children = (
+				6D9055312DCE56650023DEAE /* AnimeSection.swift */,
+				6D90552F2DCE548B0023DEAE /* FeaturedCarousel.swift */,
+				6D90552D2DCE53FC0023DEAE /* NavigationBar.swift */,
+				6D9055282DCE3FCF0023DEAE /* Anime.swift */,
+				6D9055292DCE3FCF0023DEAE /* AnimeCardView.swift */,
+				6D9055272DCE3FCF0023DEAE /* AnimeData.swift */,
+				6D9055182DCE3D490023DEAE /* MitsukaiApp.swift */,
+				6D90551A2DCE3D490023DEAE /* ContentView.swift */,
+				6D90551C2DCE3D4D0023DEAE /* Assets.xcassets */,
+				6D9055212DCE3D4D0023DEAE /* Mitsukai.entitlements */,
+				6D90551E2DCE3D4D0023DEAE /* Preview Content */,
+			);
+			path = Mitsukai;
+			sourceTree = "<group>";
+		};
+		6D90551E2DCE3D4D0023DEAE /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				6D90551F2DCE3D4D0023DEAE /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6D9055142DCE3D480023DEAE /* Mitsukai */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6D9055242DCE3D4D0023DEAE /* Build configuration list for PBXNativeTarget "Mitsukai" */;
+			buildPhases = (
+				6D9055112DCE3D480023DEAE /* Sources */,
+				6D9055122DCE3D480023DEAE /* Frameworks */,
+				6D9055132DCE3D480023DEAE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Mitsukai;
+			productName = Mitsukai;
+			productReference = 6D9055152DCE3D490023DEAE /* Mitsukai.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6D90550D2DCE3D480023DEAE /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1520;
+				LastUpgradeCheck = 1520;
+				TargetAttributes = {
+					6D9055142DCE3D480023DEAE = {
+						CreatedOnToolsVersion = 15.2;
+					};
+				};
+			};
+			buildConfigurationList = 6D9055102DCE3D480023DEAE /* Build configuration list for PBXProject "Mitsukai" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 6D90550C2DCE3D480023DEAE;
+			productRefGroup = 6D9055162DCE3D490023DEAE /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6D9055142DCE3D480023DEAE /* Mitsukai */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6D9055132DCE3D480023DEAE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6D9055202DCE3D4D0023DEAE /* Preview Assets.xcassets in Resources */,
+				6D90551D2DCE3D4D0023DEAE /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6D9055112DCE3D480023DEAE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6D90552B2DCE3FCF0023DEAE /* Anime.swift in Sources */,
+				6D90551B2DCE3D490023DEAE /* ContentView.swift in Sources */,
+				6D9055192DCE3D490023DEAE /* MitsukaiApp.swift in Sources */,
+				6D90552C2DCE3FCF0023DEAE /* AnimeCardView.swift in Sources */,
+				6D9055322DCE56660023DEAE /* AnimeSection.swift in Sources */,
+				6D9055302DCE548B0023DEAE /* FeaturedCarousel.swift in Sources */,
+				6D90552A2DCE3FCF0023DEAE /* AnimeData.swift in Sources */,
+				6D90552E2DCE53FC0023DEAE /* NavigationBar.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		6D9055222DCE3D4D0023DEAE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		6D9055232DCE3D4D0023DEAE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		6D9055252DCE3D4D0023DEAE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Mitsukai/Mitsukai.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Mitsukai/Preview Content\"";
+				DEVELOPMENT_TEAM = 8F48B8WMY3;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yerovyespitia.Mitsukai;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		6D9055262DCE3D4D0023DEAE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Mitsukai/Mitsukai.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Mitsukai/Preview Content\"";
+				DEVELOPMENT_TEAM = 8F48B8WMY3;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yerovyespitia.Mitsukai;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6D9055102DCE3D480023DEAE /* Build configuration list for PBXProject "Mitsukai" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6D9055222DCE3D4D0023DEAE /* Debug */,
+				6D9055232DCE3D4D0023DEAE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6D9055242DCE3D4D0023DEAE /* Build configuration list for PBXNativeTarget "Mitsukai" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6D9055252DCE3D4D0023DEAE /* Debug */,
+				6D9055262DCE3D4D0023DEAE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6D90550D2DCE3D480023DEAE /* Project object */;
+}
