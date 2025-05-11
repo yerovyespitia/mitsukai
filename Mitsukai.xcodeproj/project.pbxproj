@@ -55,6 +55,36 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6D5648182DD1102D003D7144 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				6D5648142DD105F8003D7144 /* SeriesView.swift */,
+				6D5648132DD105F8003D7144 /* MoviesView.swift */,
+				6D5648102DD0F57D003D7144 /* CollectionsView.swift */,
+				6D56480F2DD0F57D003D7144 /* SearchView.swift */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		6D5648192DD11034003D7144 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				6D90552F2DCE548B0023DEAE /* FeaturedCarousel.swift */,
+				6D9055312DCE56650023DEAE /* AnimeSection.swift */,
+				6D9055292DCE3FCF0023DEAE /* AnimeCardView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		6D56481A2DD1103C003D7144 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				6D9055282DCE3FCF0023DEAE /* Anime.swift */,
+				6D9055272DCE3FCF0023DEAE /* AnimeData.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		6D90550C2DCE3D480023DEAE = {
 			isa = PBXGroup;
 			children = (
@@ -74,16 +104,10 @@
 		6D9055172DCE3D490023DEAE /* Mitsukai */ = {
 			isa = PBXGroup;
 			children = (
-				6D5648132DD105F8003D7144 /* MoviesView.swift */,
-				6D5648142DD105F8003D7144 /* SeriesView.swift */,
-				6D5648102DD0F57D003D7144 /* CollectionsView.swift */,
-				6D56480F2DD0F57D003D7144 /* SearchView.swift */,
-				6D9055312DCE56650023DEAE /* AnimeSection.swift */,
-				6D90552F2DCE548B0023DEAE /* FeaturedCarousel.swift */,
+				6D56481A2DD1103C003D7144 /* Models */,
+				6D5648192DD11034003D7144 /* Components */,
+				6D5648182DD1102D003D7144 /* Features */,
 				6D90552D2DCE53FC0023DEAE /* NavigationBar.swift */,
-				6D9055282DCE3FCF0023DEAE /* Anime.swift */,
-				6D9055292DCE3FCF0023DEAE /* AnimeCardView.swift */,
-				6D9055272DCE3FCF0023DEAE /* AnimeData.swift */,
 				6D9055182DCE3D490023DEAE /* MitsukaiApp.swift */,
 				6D341C2E2DD0782E0072A85D /* Sidebar.swift */,
 				6D90551A2DCE3D490023DEAE /* ContentView.swift */,

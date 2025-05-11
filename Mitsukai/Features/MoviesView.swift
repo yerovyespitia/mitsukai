@@ -54,7 +54,7 @@ struct MoviesView: View {
                             MovieCard()
                         }
                     }
-                    .padding()
+                    .padding(.horizontal)
                 }
             }
         }
