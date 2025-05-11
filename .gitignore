@@ -1,2 +1,4 @@
 .DS_Store
 .env
+buildServer.json
+.cursor/rules/Guide.mdc
