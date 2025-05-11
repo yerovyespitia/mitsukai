@@ -7,11 +7,11 @@ struct NavigationBar: View {
     @State private var selectedItem = "Home"
     
     var body: some View {
-        HStack(spacing: 32) {
-            HStack(spacing: 10) {
-                Text("Home")
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
+        HStack {
+            HStack(spacing: 5) {
+                Image(systemName: "house.fill")
+                    .font(.system(size: 20))
+                    .foregroundColor(selectedItem == "Home" ? .white : .gray)
                     .padding(.vertical, 10)
                     .padding(.horizontal, 20)
                     .background(selectedItem == "Home" ? Color.white.opacity(0.15) : Color.clear)
@@ -27,27 +27,10 @@ struct NavigationBar: View {
                     .onTapGesture {
                         selectedItem = "Home"
                     }
-                Text("Search")
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .padding(.vertical, 10)
-                    .padding(.horizontal, 20)
-                    .background(selectedItem == "Search" ? Color.white.opacity(0.15) : Color.clear)
-                    .cornerRadius(800)
-                    .onHover { hovering in
-                        isSearchHovered = hovering
-                        if hovering {
-                            NSCursor.pointingHand.push()
-                        } else {
-                            NSCursor.pop()
-                        }
-                    }
-                    .onTapGesture {
-                        selectedItem = "Search"
-                    }
-                Text("Collection")
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
+                
+                Image(systemName: "square.stack.fill")
+                    .font(.system(size: 20))
+                    .foregroundColor(selectedItem == "Collection" ? .white : .gray)
                     .padding(.vertical, 10)
                     .padding(.horizontal, 20)
                     .background(selectedItem == "Collection" ? Color.white.opacity(0.15) : Color.clear)
@@ -63,12 +46,30 @@ struct NavigationBar: View {
                     .onTapGesture {
                         selectedItem = "Collection"
                     }
+                
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 20))
+                    .foregroundColor(selectedItem == "Search" ? .white : .gray)
+                    .padding(.vertical, 10)
+                    .padding(.horizontal, 20)
+                    .background(selectedItem == "Search" ? Color.white.opacity(0.15) : Color.clear)
+                    .cornerRadius(800)
+                    .onHover { hovering in
+                        isSearchHovered = hovering
+                        if hovering {
+                            NSCursor.pointingHand.push()
+                        } else {
+                            NSCursor.pop()
+                        }
+                    }
+                    .onTapGesture {
+                        selectedItem = "Search"
+                    }
             }
-            Spacer()
         }
         .padding(.horizontal)
         .padding(.bottom, 14)
-        .padding(.top, 30)
+        .padding(.top, 10)
     }
 }
 
