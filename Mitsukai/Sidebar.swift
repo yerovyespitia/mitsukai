@@ -35,7 +35,8 @@ struct SidebarView<DetailContent: View>: View {
 
                         Spacer()
                     }
-                    .padding(8)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 10)
                     .background {
                         if selection == item {
                             RoundedRectangle(cornerRadius: 8)
@@ -51,9 +52,12 @@ struct SidebarView<DetailContent: View>: View {
                 }
             }
             .listStyle(.sidebar)
-            .background(.ultraThinMaterial)
+            .background(.black)
         } detail: {
-            detailContent(selection)
+            ZStack {
+                Color.black.ignoresSafeArea()
+                detailContent(selection)
+            }
         }
         .frame(minWidth: 500, minHeight: 500)
     }
