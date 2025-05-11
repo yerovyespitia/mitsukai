@@ -11,54 +11,77 @@ struct SidebarItem: Identifiable, Hashable {
     let id = UUID()
     let title: String
     let systemImage: String
-    let count: Int
 }
 
-struct SidebarView: View {
+struct SidebarView<DetailContent: View>: View {
     @State private var selection: SidebarItem? = items[0]
+    let detailContent: (SidebarItem?) -> DetailContent
+    
+    init(@ViewBuilder detailContent: @escaping (SidebarItem?) -> DetailContent) {
+        self.detailContent = detailContent
+    }
     
     var body: some View {
         NavigationSplitView {
-                   List(selection: $selection) {
-                       ForEach(items) { item in
-                           HStack {
-                               Image(systemName: item.systemImage)
-                                   .foregroundColor(.yellow)
-                                   .frame(width: 20)
+            List(selection: $selection) {
+                ForEach(items) { item in
+                    HStack {
+                        Image(systemName: item.systemImage)
+                            .foregroundColor(.gray)
+                            .frame(width: 20)
 
-                               Text(item.title)
-                                   .foregroundColor(.primary)
+                        Text(item.title)
+                            .foregroundColor(.primary)
 
-                               Spacer()
-
-                               Text("\(item.count)")
-                                   .foregroundColor(.secondary)
-                           }
-                           .padding(8)
-                           .background {
-                               if selection == item {
-                                   RoundedRectangle(cornerRadius: 8)
-                                       .fill(Color.white.opacity(0.1))
-                               }
-                           }
-
-                       }
-                   }
-                   .listStyle(.sidebar)
-                   .background(.ultraThinMaterial)
-               } detail: {
-                   Text("You picked: \(selection?.title ?? "")")
-               }
-               .frame(minWidth: 300, minHeight: 500)
-           }
+                        Spacer()
+                    }
+                    .padding(8)
+                    .background {
+                        if selection == item {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.white.opacity(0.1))
+                        }
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        withAnimation {
+                            selection = item
+                        }
+                    }
+                }
+            }
+            .listStyle(.sidebar)
+            .background(.ultraThinMaterial)
+        } detail: {
+            detailContent(selection)
+        }
+        .frame(minWidth: 500, minHeight: 500)
     }
+}
 
 let items: [SidebarItem] = [
-    SidebarItem(title: "Home", systemImage: "house.fill", count: 3),
-    SidebarItem(title: "Collection", systemImage: "square.stack.fill", count: 2),
-    SidebarItem(title: "Search", systemImage: "magnifyingglass", count: 0),
+    SidebarItem(title: "Home", systemImage: "house.fill"),
+    SidebarItem(title: "Series", systemImage: "tv.fill"),
+    SidebarItem(title: "Movies", systemImage: "film.fill"),
+    SidebarItem(title: "Collections", systemImage: "square.stack.fill"),
+    SidebarItem(title: "Search", systemImage: "magnifyingglass"),
 ]
 
 #Preview {
-    SidebarView()
+    SidebarView { selectedItem in
+        switch selectedItem?.title {
+        case "Home":
+            Text("Home Content")
+        case "Series":
+            Text("Series Content")
+        case "Movies":
+            Text("Movies Content")
+        case "Collections":
+            Text("Collections Content")
+        case "Search":
+            Text("Search Content")
+        default:
+            Text("Select an item")
+        }
+    }
 }
