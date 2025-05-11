@@ -27,6 +27,13 @@ struct FeaturedCarousel: View {
                             .padding(24)
                         }
                         .frame(width: geometry.size.width - 32)
+                        .onHover { hovering in
+                            if hovering {
+                                NSCursor.pointingHand.push()
+                            } else {
+                                NSCursor.pop()
+                            }
+                        }
                     }
                 }
                 .padding(.horizontal, 16)
