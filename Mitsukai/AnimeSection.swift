@@ -33,13 +33,13 @@ struct AnimeSectionView_Previews: PreviewProvider {
             AnimeSectionView(
                 title: "Last Watched",
                 animes: lastWatched,
-                cardWidth: 160,
+                cardWidth: 140,
                 cardHeight: 220
             )
             AnimeSectionView(
                 title: "Upcoming",
                 animes: upcoming,
-                cardWidth: 160,
+                cardWidth: 140,
                 cardHeight: 220
             )
         }
