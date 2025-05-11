@@ -11,23 +11,12 @@ struct MoviesView: View {
             Color.black.ignoresSafeArea()
             
             VStack(alignment: .leading, spacing: 20) {
-                // Featured Movie
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("Featured Movie")
-                        .font(.title)
-                        .foregroundColor(.white)
-                        .padding(.horizontal)
-                        .fontWeight(.bold)
-                    
-                    // Placeholder for featured movie
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.3))
-                        .frame(height: 300)
-                        .cornerRadius(12)
-                        .padding(.horizontal)
-                }
-                
                 // Filters
+                Text("Movies")
+                    .font(.title)
+                    .foregroundColor(.white)
+                    .padding(.horizontal)
+                    .fontWeight(.bold)
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
                         ForEach(filters, id: \.self) { filter in
