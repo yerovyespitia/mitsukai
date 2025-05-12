@@ -11,12 +11,13 @@ struct SeriesView: View {
             Color.black.ignoresSafeArea()
             
             VStack(alignment: .leading) {
-                // Categories
                 Text("Series")
                     .font(.title)
                     .foregroundColor(.white)
                     .padding(.horizontal)
                     .fontWeight(.bold)
+                
+                // Categories
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
                         ForEach(categories, id: \.self) { category in
