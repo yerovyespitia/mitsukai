@@ -14,8 +14,8 @@ struct ContentView: View {
                             AnimeSectionView(
                                 title: "Last Watched",
                                 animes: lastWatched,
-                                cardWidth: 140,
-                                cardHeight: 220
+                                cardWidth: 257,
+                                cardHeight: 140
                             )
                             
                             AnimeSectionView(
@@ -67,5 +67,6 @@ struct ContentView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+            .frame(width: 1280, height: 980)
     }
 } 
