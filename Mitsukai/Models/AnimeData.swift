@@ -9,6 +9,8 @@ let featuredAnimes: [Anime] = [
     Anime(title: "SPY x FAMILY Cour 2", imageName: nil, description: "Anya y su familia en nuevas aventuras."),
     Anime(title: "Chainsaw Man", imageName: nil, description: "Denji y su motosierra luchan contra demonios."),
     Anime(title: "BLEACH: Thousand-Year Blood War", imageName: nil, description: "Ichigo enfrenta una nueva guerra."),
+    Anime(title: "Attack on Titan Final Season Part 2", imageName: nil, description: "El final se acerca."),
+    Anime(title: "BLEACH: Thousand-Year Blood War", imageName: nil, description: "Ichigo enfrenta una nueva guerra."),
 ]
 
 let lastWatched: [Anime] = [
@@ -24,4 +26,6 @@ let upcoming: [Anime] = [
     Anime(title: "Your Name", imageName: nil, description: "Un romance a través del tiempo."),
     Anime(title: "Violet Evergarden", imageName: nil, description: "Cartas y emociones."),
     Anime(title: "Fate/Zero", imageName: nil, description: "La guerra por el Santo Grial."),
+    Anime(title: "Made in Abyss", imageName: nil, description: "Explora el abismo."),
+    Anime(title: "Your Name", imageName: nil, description: "Un romance a través del tiempo."),
 ] 
