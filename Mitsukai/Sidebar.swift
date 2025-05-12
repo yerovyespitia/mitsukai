@@ -64,10 +64,10 @@ struct SidebarView<DetailContent: View>: View {
 }
 
 let items: [SidebarItem] = [
-    SidebarItem(title: "Home", systemImage: "house.fill"),
-    SidebarItem(title: "Series", systemImage: "tv.fill"),
-    SidebarItem(title: "Movies", systemImage: "film.fill"),
-    SidebarItem(title: "Collections", systemImage: "square.stack.fill"),
+    SidebarItem(title: "Home", systemImage: "house"),
+    SidebarItem(title: "Series", systemImage: "tv"),
+    SidebarItem(title: "Movies", systemImage: "film"),
+    SidebarItem(title: "Collections", systemImage: "square.stack"),
     SidebarItem(title: "Search", systemImage: "magnifyingglass"),
 ]
 
