@@ -20,9 +20,9 @@ struct SearchView: View {
                     TextField("Search anime...", text: $searchText)
                         .textFieldStyle(PlainTextFieldStyle())
                         .foregroundColor(.white)
-                        .onChange(of: searchText) { _ in
+                        .onChange(of: searchText) { oldValue, newValue in
                             // TODO: Implement search functionality
-                            isSearching = !searchText.isEmpty
+                            isSearching = !newValue.isEmpty
                         }
                     
                     if !searchText.isEmpty {
@@ -71,6 +71,7 @@ struct SearchView: View {
                             .font(.title2)
                             .foregroundColor(.white)
                             .padding(.horizontal)
+                            .fontWeight(.medium)
                         
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 12) {
