@@ -13,25 +13,30 @@ struct CollectionsView: View {
     
     // MARK: - Body
     var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            
-            VStack(alignment: .leading) {
-                Text("Collections")
-                        .font(.title)
-                        .foregroundColor(.white)
-                        .padding(.horizontal)
-                        .fontWeight(.bold)
+        NavigationStack {
+            ZStack {
+                Color.black.ignoresSafeArea()
                 
-                ScrollView {
-                    LazyVGrid(columns: [
-                        GridItem(.adaptive(minimum: 200, maximum: 300), spacing: 16)
-                    ], spacing: 16) {
-                        ForEach(collections) { collection in
-                            CollectionCard(collection: collection)
+                VStack(alignment: .leading) {
+                    Text("Collections")
+                            .font(.title)
+                            .foregroundColor(.white)
+                            .padding(.horizontal)
+                            .fontWeight(.bold)
+                    
+                    ScrollView {
+                        LazyVGrid(columns: [
+                            GridItem(.adaptive(minimum: 200, maximum: 300), spacing: 16)
+                        ], spacing: 16) {
+                            ForEach(collections) { collection in
+                                NavigationLink(destination: CollectionDetailView(collection: collection)) {
+                                    CollectionCard(collection: collection)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                            }
                         }
+                        .padding(.horizontal)
                     }
-                    .padding(.horizontal)
                 }
             }
         }
