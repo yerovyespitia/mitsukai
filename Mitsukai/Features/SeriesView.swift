@@ -7,44 +7,49 @@ struct SeriesView: View {
     
     // MARK: - Body
     var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            
-            VStack(alignment: .leading) {
-                Text("Series")
-                    .font(.title)
-                    .foregroundColor(.white)
-                    .padding(.horizontal)
-                    .fontWeight(.bold)
+        NavigationStack {
+            ZStack {
+                Color.black.ignoresSafeArea()
                 
-                // Categories
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        ForEach(categories, id: \.self) { category in
-                            CategoryButton(
-                                title: category,
-                                isSelected: selectedCategory == category,
-                                action: {
-                                    withAnimation {
-                                        selectedCategory = category
+                VStack(alignment: .leading) {
+                    Text("Series")
+                        .font(.title)
+                        .foregroundColor(.white)
+                        .padding(.horizontal)
+                        .fontWeight(.bold)
+                    
+                    // Categories
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            ForEach(categories, id: \.self) { category in
+                                CategoryButton(
+                                    title: category,
+                                    isSelected: selectedCategory == category,
+                                    action: {
+                                        withAnimation {
+                                            selectedCategory = category
+                                        }
                                     }
+                                )
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    
+                    // Series Grid
+                    ScrollView {
+                        LazyVGrid(columns: [
+                            GridItem(.adaptive(minimum: 160, maximum: 200), spacing: 16)
+                        ], spacing: 16) {
+                            ForEach(series) { anime in
+                                NavigationLink(destination: InfoView(anime: anime)) {
+                                    SeriesCard(anime: anime)
                                 }
-                            )
+                                .buttonStyle(PlainButtonStyle())
+                            }
                         }
+                        .padding()
                     }
-                    .padding(.horizontal)
-                }
-                
-                // Series Grid
-                ScrollView {
-                    LazyVGrid(columns: [
-                        GridItem(.adaptive(minimum: 160, maximum: 200), spacing: 16)
-                    ], spacing: 16) {
-                        ForEach(series) { anime in
-                            SeriesCard(anime: anime)
-                        }
-                    }
-                    .padding()
                 }
             }
         }
