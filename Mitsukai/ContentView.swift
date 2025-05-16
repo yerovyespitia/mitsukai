@@ -13,30 +13,22 @@ struct ContentView: View {
                             
                             AnimeSectionView(
                                 title: "Last Watched",
-                                animes: lastWatched,
-                                cardWidth: 257,
-                                cardHeight: 140
+                                animes: lastWatched
                             )
                             
                             AnimeSectionView(
                                 title: "Upcoming",
-                                animes: upcoming,
-                                cardWidth: 140,
-                                cardHeight: 200
+                                animes: upcoming
                             )
                             
                             AnimeSectionView(
                                 title: "Winter Season",
-                                animes: upcoming,
-                                cardWidth: 140,
-                                cardHeight: 200
+                                animes: upcoming
                             )
                             
                             AnimeSectionView(
                                 title: "Airing",
-                                animes: upcoming,
-                                cardWidth: 140,
-                                cardHeight: 200
+                                animes: upcoming
                             )
                         }
                         
