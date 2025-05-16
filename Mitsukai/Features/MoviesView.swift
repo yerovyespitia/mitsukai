@@ -7,43 +7,49 @@ struct MoviesView: View {
     
     // MARK: - Body
     var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            
-            VStack(alignment: .leading, spacing: 20) {
-                // Filters
-                Text("Movies")
-                    .font(.title)
-                    .foregroundColor(.white)
-                    .padding(.horizontal)
-                    .fontWeight(.bold)
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        ForEach(filters, id: \.self) { filter in
-                            FilterButton(
-                                title: filter,
-                                isSelected: selectedFilter == filter,
-                                action: {
-                                    withAnimation {
-                                        selectedFilter = filter
-                                    }
-                                }
-                            )
-                        }
-                    }
-                    .padding(.horizontal)
-                }
+        NavigationStack {
+            ZStack {
+                Color.black.ignoresSafeArea()
                 
-                // Movies Grid
-                ScrollView {
-                    LazyVGrid(columns: [
-                        GridItem(.adaptive(minimum: 160, maximum: 200), spacing: 16)
-                    ], spacing: 16) {
-                        ForEach(movies) { anime in
-                            MovieCard(anime: anime)
+                VStack(alignment: .leading, spacing: 20) {
+                    // Filters
+                    Text("Movies")
+                        .font(.title)
+                        .foregroundColor(.white)
+                        .padding(.horizontal)
+                        .fontWeight(.bold)
+                        
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            ForEach(filters, id: \.self) { filter in
+                                FilterButton(
+                                    title: filter,
+                                    isSelected: selectedFilter == filter,
+                                    action: {
+                                        withAnimation {
+                                            selectedFilter = filter
+                                        }
+                                    }
+                                )
+                            }
                         }
+                        .padding(.horizontal)
                     }
-                    .padding(.horizontal)
+                    
+                    // Movies Grid
+                    ScrollView {
+                        LazyVGrid(columns: [
+                            GridItem(.adaptive(minimum: 160, maximum: 200), spacing: 16)
+                        ], spacing: 16) {
+                            ForEach(movies) { anime in
+                                NavigationLink(destination: InfoView(anime: anime)) {
+                                    MovieCard(anime: anime)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
                 }
             }
         }
