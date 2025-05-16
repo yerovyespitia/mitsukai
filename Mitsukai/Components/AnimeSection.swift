@@ -3,8 +3,6 @@ import SwiftUI
 struct AnimeSectionView: View {
     let title: String
     let animes: [Anime]
-    let cardWidth: CGFloat
-    let cardHeight: CGFloat
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -14,35 +12,21 @@ struct AnimeSectionView: View {
                 .padding(.horizontal)
                 .padding(.vertical)
             
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 16) {
-                    ForEach(animes) { anime in
-                        AnimeCardView(anime: anime, width: cardWidth, height: cardHeight)
-                    }
+            LazyVGrid(columns: [
+                GridItem(.adaptive(minimum: 160, maximum: 200), spacing: 16)
+            ], spacing: 16) {
+                ForEach(animes) { anime in
+                    SeriesCard(anime: anime)
                 }
-                .padding(.horizontal)
             }
-            .padding(.bottom, 16)
+            .padding()
         }
     }
 }
 
-struct AnimeSectionView_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack {
-            AnimeSectionView(
-                title: "Last Watched",
-                animes: lastWatched,
-                cardWidth: 140,
-                cardHeight: 220
-            )
-            AnimeSectionView(
-                title: "Upcoming",
-                animes: upcoming,
-                cardWidth: 140,
-                cardHeight: 220
-            )
-        }
-        .background(Color.black)
-    }
+#Preview {
+    AnimeSectionView(
+        title: "Last Watched",
+        animes: lastWatched
+    )
 } 
