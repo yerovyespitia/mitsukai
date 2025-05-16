@@ -40,8 +40,8 @@ struct SeriesView: View {
                     LazyVGrid(columns: [
                         GridItem(.adaptive(minimum: 160, maximum: 200), spacing: 16)
                     ], spacing: 16) {
-                        ForEach(0..<20) { _ in
-                            SeriesCard()
+                        ForEach(series) { anime in
+                            SeriesCard(anime: anime)
                         }
                     }
                     .padding()
@@ -73,24 +73,48 @@ struct CategoryButton: View {
 
 // MARK: - Series Card
 struct SeriesCard: View {
+    let anime: Anime
+    @State private var isHovered = false
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Placeholder for series poster
-            Rectangle()
-                .fill(Color.gray.opacity(0.3))
-                .aspectRatio(2/3, contentMode: .fit)
-                .cornerRadius(8)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Series Title")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                
-                Text("2024 • Action • 24 Episodes")
-                    .font(.caption)
-                    .foregroundColor(.gray)
+        ZStack {
+            VStack(alignment: .leading, spacing: 8) {
+                // Placeholder for series poster
+                Rectangle()
+                    .fill(Color.gray.opacity(0.3))
+                    .aspectRatio(2/3, contentMode: .fit)
+                    .cornerRadius(8)
             }
         }
+        .cornerRadius(8)
+        .overlay(
+            ZStack {
+                Rectangle()
+                    .fill(Color.black.opacity(0.4))
+                    .cornerRadius(8)
+
+                VStack(alignment: .center, spacing: 4) {
+                    Text(anime.title)
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding(8)
+                        .shadow(radius: 4)
+                        .multilineTextAlignment(.center)
+                    
+                    Text("2024 • Action • 2h 15m")
+                        .font(.caption)
+                        .foregroundColor(.white)
+
+                }
+            }
+            .opacity(isHovered ? 1 : 0)
+            .animation(.easeInOut(duration: 0.2), value: isHovered),
+            alignment: .center
+        )
+        .onHover { hovering in
+            isHovered = hovering
+        }
+        .clipped()
     }
 }
 
