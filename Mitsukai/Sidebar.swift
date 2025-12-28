@@ -59,7 +59,7 @@ struct SidebarView<DetailContent: View>: View {
                 detailContent(selection)
             }
         }
-        .frame(minWidth: 500, minHeight: 500)
+        .frame(minWidth: 700, minHeight: 500)
     }
 }
 
