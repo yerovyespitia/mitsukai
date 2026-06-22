@@ -1,0 +1,203 @@
+import SwiftUI
+
+struct CatalogSectionView: View {
+    enum CardStyle {
+        case poster
+        case watching
+    }
+
+    let title: String
+    let items: [CatalogItem]
+    var cardStyle: CardStyle = .poster
+    var showsDroppedContextAction = false
+    var onItemSelected: ((CatalogItem) -> Void)?
+
+    private let posterWidth: CGFloat = 144
+    private let posterHeight: CGFloat = 216
+    private let watchingWidth: CGFloat = 252
+    private let watchingHeight: CGFloat = 142
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(title)
+                .font(.headline).bold()
+                .foregroundColor(.white)
+                .padding(.leading, OrzenLayout.contentLeadingInset)
+                .padding(.trailing, OrzenLayout.contentTrailingInset)
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack(alignment: .top, spacing: 14) {
+                    ForEach(items) { item in
+                        if let onItemSelected {
+                            Button {
+                                onItemSelected(item)
+                            } label: {
+                                card(for: item)
+                            }
+                            .buttonStyle(.plain)
+                            .frame(width: cardWidth, height: cardHeight)
+                            .scrollTransition(.interactive, axis: .horizontal) { content, phase in
+                                content
+                                    .opacity(phase.isIdentity ? 1 : 0.82)
+                                    .scaleEffect(phase.isIdentity ? 1 : 0.98)
+                            }
+                        } else {
+                            NavigationLink(destination: InfoView(item: item)) {
+                                card(for: item)
+                            }
+                            .buttonStyle(.plain)
+                            .frame(width: cardWidth, height: cardHeight)
+                            .scrollTransition(.interactive, axis: .horizontal) { content, phase in
+                                content
+                                    .opacity(phase.isIdentity ? 1 : 0.82)
+                                    .scaleEffect(phase.isIdentity ? 1 : 0.98)
+                            }
+                        }
+                    }
+                }
+                .padding(.leading, OrzenLayout.contentLeadingInset)
+                .padding(.trailing, OrzenLayout.contentTrailingInset)
+                .padding(.vertical, 2)
+            }
+        }
+        .padding(.bottom, 22)
+    }
+
+    @ViewBuilder
+    private func card(for item: CatalogItem) -> some View {
+        switch cardStyle {
+        case .poster:
+            SeriesCard(
+                item: item,
+                showsDroppedContextAction: showsDroppedContextAction
+            )
+        case .watching:
+            WatchingCard(
+                item: item,
+                showsDroppedContextAction: showsDroppedContextAction
+            )
+        }
+    }
+
+    private var cardWidth: CGFloat {
+        switch cardStyle {
+        case .poster:
+            posterWidth
+        case .watching:
+            watchingWidth
+        }
+    }
+
+    private var cardHeight: CGFloat {
+        switch cardStyle {
+        case .poster:
+            posterHeight
+        case .watching:
+            watchingHeight
+        }
+    }
+}
+
+private struct WatchingCard: View {
+    let item: CatalogItem
+    var showsDroppedContextAction = false
+
+    @ObservedObject private var episodeWatchStore = EpisodeWatchStore.shared
+    @ObservedObject private var progressStore = PlaybackProgressStore.shared
+    @State private var isHovered = false
+
+    var body: some View {
+        ZStack(alignment: .bottomLeading) {
+            artwork
+
+            LinearGradient(
+                colors: [
+                    Color.black.opacity(0),
+                    Color.black.opacity(0.72)
+                ],
+                startPoint: .center,
+                endPoint: .bottom
+            )
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text(item.title)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                    .lineLimit(2)
+                    .shadow(radius: 4)
+
+                if let nextEpisodeLabel {
+                    Text(nextEpisodeLabel)
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.78))
+                        .lineLimit(1)
+                }
+
+                progressBar
+            }
+            .padding(12)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(Color.white.opacity(isHovered ? 0.2 : 0.08), lineWidth: 1)
+        }
+        .scaleEffect(isHovered ? 1.015 : 1)
+        .animation(.easeInOut(duration: 0.16), value: isHovered)
+        .onHover { hovering in
+            isHovered = hovering
+        }
+        .catalogItemContextMenu(item: item, showsDroppedAction: showsDroppedContextAction)
+    }
+
+    @ViewBuilder
+    private var artwork: some View {
+        if let artworkURL = progressStore.watchingArtworkURL(for: item) {
+            CachedRemoteImage(url: artworkURL) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } placeholder: {
+                OrzenArtworkPlaceholder(style: .backdrop)
+            }
+        } else {
+            OrzenArtworkPlaceholder(style: .backdrop)
+        }
+    }
+
+    private var progressBar: some View {
+        GeometryReader { proxy in
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(Color.white.opacity(0.22))
+
+                Capsule()
+                    .fill(Color.white.opacity(0.96))
+                    .frame(width: max(0, proxy.size.width * progressFraction))
+            }
+        }
+        .frame(height: 6)
+        .clipShape(Capsule())
+    }
+
+    private var progressFraction: Double {
+        progressStore.progressFraction(for: item)
+    }
+
+    private var nextEpisodeLabel: String? {
+        guard item.cinemetaType == .series,
+              let episode = episodeWatchStore.nextUnwatchedEpisode(for: item) else {
+            return nil
+        }
+
+        return episode.metadata.first
+    }
+}
+
+#Preview {
+    CatalogSectionView(
+        title: "Last Watched",
+        items: lastWatched
+    )
+} 

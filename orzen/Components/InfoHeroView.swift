@@ -1,0 +1,309 @@
+import SwiftUI
+
+struct InfoHeroView: View {
+    let item: CatalogItem
+    var detail = CatalogDetail.empty
+    let horizontalPadding: CGFloat
+    @ObservedObject private var collectionStore = CollectionStore.shared
+    @ObservedObject private var episodeWatchStore = EpisodeWatchStore.shared
+    @State private var isListButtonHovered = false
+    @State private var isFavoriteButtonHovered = false
+    @State private var isWatchedButtonHovered = false
+    @State private var isDroppedButtonHovered = false
+    @State private var isConfirmingMarkAllWatched = false
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 32) {
+            posterImage
+                .frame(width: 220, height: 320)
+                .clipped()
+                .cornerRadius(16)
+                .shadow(radius: 10)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                )
+
+            VStack(alignment: .leading, spacing: 16) {
+                Text(item.title)
+                    .font(.system(size: 40, weight: .bold))
+                    .foregroundColor(.white)
+                    .lineLimit(3)
+
+                Text(item.description)
+                    .font(.body)
+                    .foregroundColor(.white.opacity(0.9))
+                    .padding(.top, 8)
+
+                detailPills
+                actionButtons
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, horizontalPadding)
+        .padding(.top, 116)
+        .alert("Mark all episodes as watched?", isPresented: $isConfirmingMarkAllWatched) {
+            Button("Cancel", role: .cancel) { }
+            Button("Mark All", action: markSeriesWatched)
+        } message: {
+            Text("This series already has watched episodes. Marking all will mark every episode as watched.")
+        }
+    }
+
+    @ViewBuilder
+    private var posterImage: some View {
+        if let posterURL = item.posterURL {
+            CachedRemoteImage(url: posterURL) { image in
+                image
+                    .resizable()
+                    .scaledToFill()
+            } placeholder: {
+                posterPlaceholder
+            }
+        } else if let imageName = item.imageName {
+            Image(imageName)
+                .resizable()
+                .scaledToFill()
+        } else {
+            posterPlaceholder
+        }
+    }
+
+    private var posterPlaceholder: some View {
+        OrzenArtworkPlaceholder(style: .poster)
+    }
+
+    private var actionButtons: some View {
+        HStack(spacing: 10) {
+            actionButton(
+                systemImage: isAddedToList ? "checkmark" : "text.badge.plus",
+                isSelected: isAddedToList,
+                isHovered: isListButtonHovered,
+                help: listToggleHelp,
+                action: {
+                    collectionStore.togglePlanToWatch(item)
+                }
+            )
+            .onHover { hovering in
+                isListButtonHovered = hovering
+            }
+            .animation(.easeInOut(duration: 0.12), value: isListButtonHovered)
+
+            actionButton(
+                systemImage: isFavorite ? "heart.fill" : "heart",
+                isSelected: isFavorite,
+                isHovered: isFavoriteButtonHovered,
+                help: favoriteToggleHelp,
+                action: {
+                    collectionStore.toggleFavorite(item)
+                }
+            )
+            .onHover { hovering in
+                isFavoriteButtonHovered = hovering
+            }
+            .animation(.easeInOut(duration: 0.12), value: isFavoriteButtonHovered)
+
+            actionButton(
+                systemImage: isWatched ? "eye.fill" : "eye.slash.fill",
+                isSelected: isWatched,
+                isHovered: isWatchedButtonHovered,
+                help: watchedToggleHelp,
+                action: handleWatchedAction
+            )
+            .onHover { hovering in
+                isWatchedButtonHovered = hovering
+            }
+            .animation(.easeInOut(duration: 0.12), value: isWatchedButtonHovered)
+
+            actionButton(
+                systemImage: isDropped ? "archivebox.fill" : "archivebox",
+                isSelected: isDropped,
+                isHovered: isDroppedButtonHovered,
+                help: droppedToggleHelp,
+                action: handleDroppedAction
+            )
+            .onHover { hovering in
+                isDroppedButtonHovered = hovering
+            }
+            .animation(.easeInOut(duration: 0.12), value: isDroppedButtonHovered)
+        }
+    }
+
+    @ViewBuilder
+    private func actionButton(
+        systemImage: String,
+        isSelected: Bool,
+        isHovered: Bool,
+        help: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.14), action)
+        } label: {
+            if #available(macOS 26, *) {
+                actionIcon(systemImage: systemImage, isSelected: isSelected)
+                    .background(actionBackground(isSelected: isSelected, isHovered: isHovered))
+                    .glassEffect(.regular.interactive(), in: Circle())
+            } else {
+                actionIcon(systemImage: systemImage, isSelected: isSelected)
+                    .background(actionBackground(isSelected: isSelected, isHovered: isHovered))
+            }
+        }
+        .buttonStyle(.plain)
+        .contentShape(Circle())
+        .help(help)
+        .accessibilityLabel(help)
+    }
+
+    private func actionBackground(isSelected: Bool, isHovered: Bool) -> some View {
+        Circle()
+            .fill(actionFillColor(isSelected: isSelected, isHovered: isHovered))
+            .overlay(
+                Circle()
+                    .stroke(Color.white.opacity(isHovered ? 0.18 : 0.08), lineWidth: 1)
+            )
+    }
+
+    private func actionFillColor(isSelected: Bool, isHovered: Bool) -> Color {
+        if isSelected {
+            return Color.accentColor.opacity(isHovered ? 0.34 : 0.26)
+        }
+
+        return Color.white.opacity(isHovered ? 0.16 : 0.08)
+    }
+
+    private func actionIcon(systemImage: String, isSelected: Bool) -> some View {
+        Image(systemName: systemImage)
+            .font(.system(size: 16, weight: .semibold))
+            .foregroundColor(.white.opacity(isSelected ? 0.96 : 0.86))
+            .frame(width: 34, height: 34)
+    }
+
+    private var listToggleHelp: String {
+        isAddedToList ? "Remove from Watchlist" : "Add to Watchlist"
+    }
+
+    private var favoriteToggleHelp: String {
+        isFavorite ? "Remove from Favorites" : "Add to Favorites"
+    }
+
+    private var watchedToggleHelp: String {
+        if item.cinemetaType == .series {
+            return isWatched ? "Remove watched episodes" : "Mark all episodes as watched"
+        }
+
+        return isWatched ? "Remove from Watched" : "Add to Watched"
+    }
+
+    private var droppedToggleHelp: String {
+        isDropped ? "Undrop" : "Drop"
+    }
+
+    private var isAddedToList: Bool {
+        collectionStore.isInPlanToWatch(item)
+    }
+
+    private var isFavorite: Bool {
+        collectionStore.isFavorite(item)
+    }
+
+    private var isWatched: Bool {
+        if item.cinemetaType == .series {
+            return episodeWatchStore.isSeriesFullyWatched(item, episodes: detail.episodes)
+        }
+
+        return collectionStore.isWatched(item)
+    }
+
+    private var isDropped: Bool {
+        collectionStore.isDropped(item)
+    }
+
+    private func handleWatchedAction() {
+        guard item.cinemetaType == .series else {
+            collectionStore.toggleWatched(item)
+            return
+        }
+
+        guard !detail.episodes.isEmpty else { return }
+
+        if episodeWatchStore.isSeriesFullyWatched(item, episodes: detail.episodes) {
+            episodeWatchStore.clearWatched(item, episodes: detail.episodes)
+            collectionStore.setWatched(item, isWatched: false)
+        } else if episodeWatchStore.hasWatchedEpisodes(for: item) {
+            isConfirmingMarkAllWatched = true
+        } else {
+            markSeriesWatched()
+        }
+    }
+
+    private func markSeriesWatched() {
+        episodeWatchStore.markAllWatched(item, episodes: detail.episodes)
+        collectionStore.setWatched(item, isWatched: true)
+    }
+
+    private func handleDroppedAction() {
+        if item.cinemetaType == .series, !isDropped {
+            if detail.episodes.isEmpty {
+                episodeWatchStore.clearWatched(item)
+            } else {
+                episodeWatchStore.clearWatched(item, episodes: detail.episodes)
+            }
+        }
+
+        collectionStore.toggleDropped(item)
+    }
+
+    @ViewBuilder
+    private var detailPills: some View {
+        if #available(macOS 26, *) {
+            GlassEffectContainer(spacing: 10) {
+                detailPillContent
+            }
+        } else {
+            detailPillContent
+        }
+    }
+
+    private var detailPillContent: some View {
+        HStack(spacing: 10) {
+            ForEach(details, id: \.self) { detail in
+                detailPill(detail)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func detailPill(_ detail: String) -> some View {
+        if #available(macOS 26, *) {
+            detailPillText(detail)
+                .glassEffect(.regular.tint(Color.white.opacity(0.03)), in: Capsule())
+        } else {
+            detailPillText(detail)
+                .background(Color.white.opacity(0.12), in: Capsule())
+        }
+    }
+
+    private func detailPillText(_ detail: String) -> some View {
+        Text(detail)
+            .font(.callout)
+            .fontWeight(.medium)
+            .foregroundColor(.white.opacity(0.86))
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+    }
+
+    private var details: [String] {
+        [
+            item.displayYear,
+            item.runtime,
+            item.imdbRating.map { "IMDb \($0)" },
+            item.genres.first
+        ]
+        .compactMap { value in
+            guard let value, !value.isEmpty else { return nil }
+            return value
+        }
+    }
+}
