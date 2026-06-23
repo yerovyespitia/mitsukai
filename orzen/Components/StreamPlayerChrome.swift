@@ -37,6 +37,8 @@ struct StreamPlayerChrome: View {
         .background {
             chromeGradient
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 
     private var header: some View {
@@ -62,34 +64,8 @@ struct StreamPlayerChrome: View {
     @ViewBuilder
     private var backButton: some View {
         let hoverID = "player-back"
-
-        if #available(macOS 26, *) {
-            Button(action: onBack) {
-                backIcon
-                    .background(circularButtonBackground(hoverID: hoverID))
-                    .glassEffect(.regular.interactive(), in: Circle())
-            }
-            .buttonStyle(.plain)
-            .contentShape(Circle())
-            .onHover { hovering in
-                hoveredCircularButton = hovering ? hoverID : nil
-            }
-            .animation(.easeInOut(duration: 0.12), value: hoveredCircularButton)
-            .help("Back")
-            .accessibilityLabel("Back")
-        } else {
-            Button(action: onBack) {
-                backIcon
-                    .background(circularButtonBackground(hoverID: hoverID))
-            }
-            .buttonStyle(.plain)
-            .contentShape(Circle())
-            .onHover { hovering in
-                hoveredCircularButton = hovering ? hoverID : nil
-            }
-            .animation(.easeInOut(duration: 0.12), value: hoveredCircularButton)
-            .help("Back")
-            .accessibilityLabel("Back")
+        circularButton(hoverID: hoverID, help: "Back", action: onBack) {
+            backIcon
         }
     }
 
@@ -231,7 +207,6 @@ struct StreamPlayerChrome: View {
         isMuted ? 0 : volume
     }
 
-    @ViewBuilder
     private func centerTransportButton(
         systemName: String,
         size: CenterTransportButtonSize,
@@ -240,9 +215,21 @@ struct StreamPlayerChrome: View {
     ) -> some View {
         let hoverID = "transport-\(systemName)-\(size.buttonSize)"
 
+        return circularButton(hoverID: hoverID, help: help, action: action) {
+            centerTransportIcon(systemName: systemName, size: size)
+        }
+    }
+
+    @ViewBuilder
+    private func circularButton<Icon: View>(
+        hoverID: String,
+        help: String,
+        action: @escaping () -> Void,
+        @ViewBuilder icon: () -> Icon
+    ) -> some View {
         if #available(macOS 26, *) {
             Button(action: action) {
-                centerTransportIcon(systemName: systemName, size: size)
+                icon()
                     .background(circularButtonBackground(hoverID: hoverID))
                     .glassEffect(.regular.interactive(), in: Circle())
             }
@@ -256,7 +243,7 @@ struct StreamPlayerChrome: View {
             .accessibilityLabel(help)
         } else {
             Button(action: action) {
-                centerTransportIcon(systemName: systemName, size: size)
+                icon()
                     .background(circularButtonBackground(hoverID: hoverID))
             }
             .buttonStyle(.plain)

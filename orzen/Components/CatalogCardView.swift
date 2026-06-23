@@ -27,7 +27,12 @@ struct CachedRemoteImage<Content: View, Placeholder: View>: View {
 
 @MainActor
 private final class CachedRemoteImageLoader: ObservableObject {
-    private static let cache = NSCache<NSURL, NSImage>()
+    private static let cache: NSCache<NSURL, NSImage> = {
+        let cache = NSCache<NSURL, NSImage>()
+        cache.countLimit = 220
+        cache.totalCostLimit = 120 * 1024 * 1024
+        return cache
+    }()
     
     @Published private(set) var image: NSImage?
     
@@ -65,7 +70,7 @@ private final class CachedRemoteImageLoader: ObservableObject {
                 }
                 
                 await MainActor.run {
-                    Self.cache.setObject(loadedImage, forKey: url as NSURL)
+                    Self.cache.setObject(loadedImage, forKey: url as NSURL, cost: data.count)
                     if self.currentURL == url {
                         self.image = loadedImage
                     }

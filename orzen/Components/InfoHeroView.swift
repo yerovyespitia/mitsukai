@@ -12,6 +12,10 @@ struct InfoHeroView: View {
     @State private var isDroppedButtonHovered = false
     @State private var isConfirmingMarkAllWatched = false
 
+    private var collectionActions: CatalogItemCollectionActions {
+        CatalogItemCollectionActions(item: item, episodes: detail.episodes)
+    }
+
     var body: some View {
         HStack(alignment: .top, spacing: 32) {
             posterImage
@@ -81,9 +85,7 @@ struct InfoHeroView: View {
                 isSelected: isAddedToList,
                 isHovered: isListButtonHovered,
                 help: listToggleHelp,
-                action: {
-                    collectionStore.togglePlanToWatch(item)
-                }
+                action: collectionActions.togglePlanToWatch
             )
             .onHover { hovering in
                 isListButtonHovered = hovering
@@ -95,9 +97,7 @@ struct InfoHeroView: View {
                 isSelected: isFavorite,
                 isHovered: isFavoriteButtonHovered,
                 help: favoriteToggleHelp,
-                action: {
-                    collectionStore.toggleFavorite(item)
-                }
+                action: collectionActions.toggleFavorite
             )
             .onHover { hovering in
                 isFavoriteButtonHovered = hovering
@@ -181,78 +181,49 @@ struct InfoHeroView: View {
     }
 
     private var listToggleHelp: String {
-        isAddedToList ? "Remove from Watchlist" : "Add to Watchlist"
+        collectionActions.listToggleTitle
     }
 
     private var favoriteToggleHelp: String {
-        isFavorite ? "Remove from Favorites" : "Add to Favorites"
+        collectionActions.favoriteToggleTitle
     }
 
     private var watchedToggleHelp: String {
-        if item.cinemetaType == .series {
-            return isWatched ? "Remove watched episodes" : "Mark all episodes as watched"
-        }
-
-        return isWatched ? "Remove from Watched" : "Add to Watched"
+        collectionActions.watchedToggleTitle
     }
 
     private var droppedToggleHelp: String {
-        isDropped ? "Undrop" : "Drop"
+        collectionActions.droppedToggleTitle
     }
 
     private var isAddedToList: Bool {
-        collectionStore.isInPlanToWatch(item)
+        collectionActions.isAddedToList
     }
 
     private var isFavorite: Bool {
-        collectionStore.isFavorite(item)
+        collectionActions.isFavorite
     }
 
     private var isWatched: Bool {
-        if item.cinemetaType == .series {
-            return episodeWatchStore.isSeriesFullyWatched(item, episodes: detail.episodes)
-        }
-
-        return collectionStore.isWatched(item)
+        collectionActions.isWatched
     }
 
     private var isDropped: Bool {
-        collectionStore.isDropped(item)
+        collectionActions.isDropped
     }
 
     private func handleWatchedAction() {
-        guard item.cinemetaType == .series else {
-            collectionStore.toggleWatched(item)
-            return
-        }
-
-        guard !detail.episodes.isEmpty else { return }
-
-        if episodeWatchStore.isSeriesFullyWatched(item, episodes: detail.episodes) {
-            episodeWatchStore.clearWatched(item, episodes: detail.episodes)
-            collectionStore.setWatched(item, isWatched: false)
-        } else if episodeWatchStore.hasWatchedEpisodes(for: item) {
+        if case .confirmMarkAll = collectionActions.applyWatchedAction() {
             isConfirmingMarkAllWatched = true
-        } else {
-            markSeriesWatched()
         }
     }
 
     private func markSeriesWatched() {
-        episodeWatchStore.markAllWatched(item, episodes: detail.episodes)
-        collectionStore.setWatched(item, isWatched: true)
+        collectionActions.markSeriesWatched(episodes: detail.episodes)
     }
 
     private func handleDroppedAction() {
-        if item.cinemetaType == .series, !isDropped {
-            if detail.episodes.isEmpty {
-                episodeWatchStore.clearWatched(item)
-            } else {
-                episodeWatchStore.clearWatched(item, episodes: detail.episodes)
-            }
-        }
-
-        collectionStore.toggleDropped(item)
+        collectionActions.applyDroppedAction()
     }
 
     @ViewBuilder

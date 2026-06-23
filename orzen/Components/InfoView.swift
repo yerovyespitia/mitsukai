@@ -2,26 +2,15 @@ import SwiftUI
 
 struct InfoView: View {
     let item: CatalogItem
-    @ObservedObject private var addonStore = LocalAddonStore.shared
-    @ObservedObject private var playbackStore = StreamPlaybackStore.shared
     @ObservedObject private var episodeWatchStore = EpisodeWatchStore.shared
-    @ObservedObject private var collectionStore = CollectionStore.shared
-    @State private var detail = CatalogDetail.empty
-    @State private var isLoadingDetail = false
-    @State private var hasLoadedDetail = false
-    @State private var selectedSeason = 1
-    @State private var detailErrorMessage: String?
-    @State private var selectedEpisodeID: CatalogEpisode.ID?
-    @State private var sources: [StreamSource] = []
-    @State private var isLoadingSources = false
-    @State private var hasLoadedSources = false
-    @State private var sourceErrorMessage: String?
-    @State private var sourceRequestID: String?
-    @State private var selectedSourceFilter = SourceFilter.all
+    @StateObject private var viewModel: InfoViewModel
     @State private var isSourcesBackHovered = false
-    @State private var pendingEpisodeScrollID: CatalogEpisode.ID?
-    @State private var hasAutoScrolledToWatchedEpisode = false
     private let contentHorizontalPadding: CGFloat = 72
+
+    init(item: CatalogItem) {
+        self.item = item
+        _viewModel = StateObject(wrappedValue: InfoViewModel(item: item))
+    }
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -42,14 +31,14 @@ struct InfoView: View {
                     VStack(alignment: .leading, spacing: 24) {
                         InfoHeroView(
                             item: item,
-                            detail: detail,
+                            detail: viewModel.detail,
                             horizontalPadding: contentHorizontalPadding
                         )
                         detailListSection
                     }
                     .padding(.bottom, 40)
                 }
-                .onChange(of: pendingEpisodeScrollID) { _, episodeID in
+                .onChange(of: viewModel.pendingEpisodeScrollID) { _, episodeID in
                     scrollToPendingEpisode(episodeID, with: scrollProxy)
                 }
             }
@@ -57,7 +46,7 @@ struct InfoView: View {
         .background(Color.black)
         .toolbarBackground(.visible, for: .windowToolbar)
         .task(id: item.id) {
-            await loadDetail()
+            await viewModel.loadDetail()
         }
     }
 
@@ -80,7 +69,7 @@ struct InfoView: View {
     private var detailListSection: some View {
         if item.cinemetaType == .movie {
             sourcesSection
-        } else if selectedEpisodeID != nil {
+        } else if viewModel.selectedEpisodeID != nil {
             seriesSourcesSection
         } else {
             seriesEpisodesSection
@@ -96,31 +85,31 @@ struct InfoView: View {
                     .fontWeight(.bold)
                     .foregroundColor(.white)
 
-                if isLoadingDetail {
+                if viewModel.isLoadingDetail {
                     ProgressView()
                         .controlSize(.small)
                         .tint(.white)
                 }
             }
 
-            if !detail.episodes.isEmpty {
+            if !viewModel.detail.episodes.isEmpty {
                 seasonSelector
 
-                if selectedSeasonEpisodes.isEmpty {
+                if viewModel.selectedSeasonEpisodes.isEmpty {
                     DetailUnavailableView(
                         systemImage: "list.bullet.rectangle",
-                        title: "No episodes in Season \(selectedSeason)",
+                        title: "No episodes in Season \(viewModel.selectedSeason)",
                         message: "Cinemeta did not return episode metadata for this season."
                     )
                 } else {
                     LazyVStack(spacing: 12) {
-                        ForEach(selectedSeasonEpisodes) { episode in
+                        ForEach(viewModel.selectedSeasonEpisodes) { episode in
                             Button {
-                                selectEpisode(episode)
+                                viewModel.selectEpisode(episode)
                             } label: {
                                 EpisodeRow(
                                     episode: episode,
-                                    isSelected: selectedEpisodeID == episode.id,
+                                    isSelected: viewModel.selectedEpisodeID == episode.id,
                                     isWatched: episodeWatchStore.isWatched(episode)
                                 )
                             }
@@ -128,8 +117,8 @@ struct InfoView: View {
                             .id(episode.id)
                             .contextMenu {
                                 Button {
-                                    episodeWatchStore.toggleWatched(episode, in: item, episodes: detail.episodes)
-                                    syncSeriesCollectionState()
+                                    episodeWatchStore.toggleWatched(episode, in: item, episodes: viewModel.detail.episodes)
+                                    viewModel.syncSeriesCollectionState()
                                 } label: {
                                     Label(
                                         episodeWatchStore.isWatched(episode) ? "Remove from Watched" : "Mark as Watched",
@@ -140,13 +129,13 @@ struct InfoView: View {
                         }
                     }
                 }
-            } else if let detailErrorMessage {
+            } else if let detailErrorMessage = viewModel.detailErrorMessage {
                 DetailUnavailableView(
                     systemImage: "wifi.exclamationmark",
                     title: "Episode details unavailable",
                     message: detailErrorMessage
                 )
-            } else if !isLoadingDetail && hasLoadedDetail {
+            } else if !viewModel.isLoadingDetail && viewModel.hasLoadedDetail {
                 DetailUnavailableView(
                     systemImage: "list.bullet.rectangle",
                     title: "No episode details",
@@ -167,7 +156,7 @@ struct InfoView: View {
                     .fontWeight(.bold)
                     .foregroundColor(.white)
 
-                if isLoadingSources {
+                if viewModel.isLoadingSources {
                     ProgressView()
                         .controlSize(.small)
                         .tint(.white)
@@ -183,7 +172,7 @@ struct InfoView: View {
     @ViewBuilder
     private var sourcesBackButton: some View {
         Button {
-            showEpisodes()
+            viewModel.showEpisodes()
         } label: {
             if #available(macOS 26, *) {
                 sourcesBackIcon
@@ -230,7 +219,7 @@ struct InfoView: View {
                         .fontWeight(.bold)
                         .foregroundColor(.white)
 
-                    if isLoadingSources {
+                    if viewModel.isLoadingSources {
                         ProgressView()
                             .controlSize(.small)
                         .tint(.white)
@@ -246,31 +235,31 @@ struct InfoView: View {
 
     @ViewBuilder
     private var sourceFilter: some View {
-        if hasSpanishSources {
-            SourceFilterPicker(selection: $selectedSourceFilter)
+        if viewModel.hasSpanishSources {
+            SourceFilterPicker(selection: $viewModel.selectedSourceFilter)
         }
     }
 
     @ViewBuilder
     private var sourcesList: some View {
-        if !visibleSources.isEmpty {
+        if !viewModel.visibleSources.isEmpty {
             LazyVStack(spacing: 12) {
-                ForEach(visibleSources) { source in
+                ForEach(viewModel.visibleSources) { source in
                     Button {
-                        playSource(source)
+                        viewModel.playSource(source)
                     } label: {
                         SourceRow(source: source)
                     }
                     .buttonStyle(.plain)
                 }
             }
-        } else if let sourceErrorMessage {
+        } else if let sourceErrorMessage = viewModel.sourceErrorMessage {
             DetailUnavailableView(
                 systemImage: "wifi.exclamationmark",
                 title: "Sources unavailable",
                 message: sourceErrorMessage
             )
-        } else if !isLoadingSources && hasLoadedSources {
+        } else if !viewModel.isLoadingSources && viewModel.hasLoadedSources {
             DetailUnavailableView(
                 systemImage: "tray",
                 title: "No sources found",
@@ -282,121 +271,19 @@ struct InfoView: View {
     private var seasonSelector: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10) {
-                ForEach(availableSeasons, id: \.self) { season in
+                ForEach(viewModel.availableSeasons, id: \.self) { season in
                     SeasonButton(
                         season: season,
-                        isSelected: selectedSeason == season,
+                        isSelected: viewModel.selectedSeason == season,
                         action: {
                             withAnimation(.easeInOut(duration: 0.18)) {
-                                selectedSeason = season
+                                viewModel.selectedSeason = season
                             }
                         }
                     )
                 }
             }
         }
-    }
-
-    private var availableSeasons: [Int] {
-        let seasons = Set(detail.episodes.map { $0.season ?? 1 })
-        return seasons.sorted()
-    }
-
-    private var selectedSeasonEpisodes: [CatalogEpisode] {
-        detail.episodes.filter { ($0.season ?? 1) == selectedSeason }
-    }
-
-    private var selectedEpisode: CatalogEpisode? {
-        guard let selectedEpisodeID else { return nil }
-        return detail.episodes.first { $0.id == selectedEpisodeID }
-    }
-
-    private var hasSpanishSources: Bool {
-        sources.contains { $0.sourceCategory == .spanish }
-    }
-
-    private var visibleSources: [StreamSource] {
-        switch selectedSourceFilter {
-        case .all:
-            return sources
-        case .spanish:
-            return sources.filter { $0.sourceCategory == .spanish }
-        }
-    }
-
-    private func loadDetail() async {
-        selectedSeason = 1
-        pendingEpisodeScrollID = nil
-        hasAutoScrolledToWatchedEpisode = false
-        selectedEpisodeID = nil
-        sources = []
-        selectedSourceFilter = .all
-        hasLoadedSources = false
-        sourceErrorMessage = nil
-        sourceRequestID = nil
-        hasLoadedDetail = false
-
-        guard item.cinemetaType != nil else {
-            detail = .empty
-            detailErrorMessage = nil
-            hasLoadedDetail = true
-            await loadMovieSourcesIfNeeded()
-            return
-        }
-
-        if let cachedDetail = await CinemetaClient.cachedDetail(for: item) {
-            setDetail(cachedDetail)
-            detailErrorMessage = nil
-            hasLoadedDetail = true
-            await loadMovieSourcesIfNeeded()
-            return
-        }
-
-        isLoadingDetail = true
-        detailErrorMessage = nil
-
-        do {
-            setDetail(try await CinemetaClient.fetchDetail(for: item))
-        } catch {
-            detail = .empty
-            detailErrorMessage = "Try again later or open another title."
-        }
-
-        hasLoadedDetail = true
-        isLoadingDetail = false
-        await loadMovieSourcesIfNeeded()
-    }
-
-    private func setDetail(_ loadedDetail: CatalogDetail) {
-        detail = loadedDetail
-        episodeWatchStore.registerSeries(item, episodes: loadedDetail.episodes)
-        prepareInitialWatchedEpisodeScroll()
-    }
-
-    private func syncSeriesCollectionState() {
-        guard item.cinemetaType == .series else { return }
-
-        if episodeWatchStore.hasWatchedEpisodes(for: item) {
-            collectionStore.setDropped(item, isDropped: false)
-        }
-
-        collectionStore.setWatched(
-            item,
-            isWatched: episodeWatchStore.isSeriesFullyWatched(item, episodes: detail.episodes)
-        )
-    }
-
-    private func prepareInitialWatchedEpisodeScroll() {
-        guard !hasAutoScrolledToWatchedEpisode,
-              selectedEpisodeID == nil,
-              !episodeWatchStore.isSeriesFullyWatched(item, episodes: detail.episodes),
-              let episode = episodeWatchStore.lastWatchedEpisode(in: detail.episodes) else {
-            return
-        }
-
-        selectedSeason = episode.season ?? 1
-        pendingEpisodeScrollID = episode.id
-        hasAutoScrolledToWatchedEpisode = true
     }
 
     private func scrollToPendingEpisode(
@@ -410,94 +297,8 @@ struct InfoView: View {
             withAnimation(.easeInOut(duration: 0.38)) {
                 scrollProxy.scrollTo(episodeID, anchor: .top)
             }
-            pendingEpisodeScrollID = nil
+            viewModel.clearPendingEpisodeScroll()
         }
-    }
-
-    private func loadMovieSourcesIfNeeded() async {
-        guard item.cinemetaType == .movie else { return }
-        await loadSources(for: item.id, type: .movie)
-    }
-
-    private func selectEpisode(_ episode: CatalogEpisode) {
-        selectedEpisodeID = episode.id
-        sources = []
-        selectedSourceFilter = .all
-        hasLoadedSources = false
-        sourceErrorMessage = nil
-        sourceRequestID = episode.id
-
-        guard let type = item.cinemetaType else { return }
-
-        Task {
-            await loadSources(for: episode.id, type: type)
-        }
-    }
-
-    private func showEpisodes() {
-        selectedEpisodeID = nil
-        sources = []
-        selectedSourceFilter = .all
-        isLoadingSources = false
-        hasLoadedSources = false
-        sourceErrorMessage = nil
-        sourceRequestID = nil
-    }
-
-    private func playSource(_ source: StreamSource) {
-        guard let type = item.cinemetaType else { return }
-
-        playbackStore.request = StreamPlaybackRequest(
-            source: source,
-            title: selectedEpisode?.playbackTitle ?? item.title,
-            subtitle: item.title,
-            contentID: selectedEpisode?.id ?? item.id,
-            contentType: type,
-            item: item,
-            episode: selectedEpisode
-        )
-    }
-
-    private func loadSources(for id: String, type: CinemetaType) async {
-        sourceRequestID = id
-
-        guard !addonStore.streamAddons.isEmpty else {
-            guard sourceRequestID == id else { return }
-            sources = []
-            sourceErrorMessage = "Add Torrentio from Addons to see available sources."
-            hasLoadedSources = true
-            return
-        }
-
-        isLoadingSources = true
-        sourceErrorMessage = nil
-
-        let streamAddons = addonStore.streamAddons
-        let loadedSources = await withTaskGroup(of: [StreamSource].self) { group in
-            for addon in streamAddons {
-                group.addTask {
-                    (try? await StremioStreamClient.fetchSources(from: addon, type: type, id: id)) ?? []
-                }
-            }
-
-            var allSources: [StreamSource] = []
-            for await addonSources in group {
-                allSources.append(contentsOf: addonSources)
-            }
-            return allSources
-        }
-
-        guard sourceRequestID == id else { return }
-        sources = loadedSources
-        if !hasSpanishSources {
-            selectedSourceFilter = .all
-        }
-        if loadedSources.isEmpty {
-            sourceErrorMessage = nil
-        }
-
-        hasLoadedSources = true
-        isLoadingSources = false
     }
 }
 

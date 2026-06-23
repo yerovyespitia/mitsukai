@@ -9,6 +9,10 @@ struct CatalogItemContextMenuModifier: ViewModifier {
     @State private var isConfirmingMarkAllWatched = false
     @State private var pendingWatchedEpisodes: [CatalogEpisode] = []
 
+    private var collectionActions: CatalogItemCollectionActions {
+        CatalogItemCollectionActions(item: item)
+    }
+
     func body(content: Content) -> some View {
         content
             .navigationDestination(isPresented: $isShowingDetails) {
@@ -58,39 +62,35 @@ struct CatalogItemContextMenuModifier: ViewModifier {
     }
 
     private var listToggleTitle: String {
-        isAddedToList ? "Remove from Watchlist" : "Add to Watchlist"
+        collectionActions.listToggleTitle
     }
 
     private var favoriteToggleTitle: String {
-        isFavorite ? "Remove from Favorites" : "Add to Favorites"
+        collectionActions.favoriteToggleTitle
     }
 
     private var watchedToggleTitle: String {
-        if item.cinemetaType == .series {
-            return isWatched ? "Remove watched episodes" : "Mark all episodes as watched"
-        }
-
-        return isWatched ? "Remove from Watched" : "Add to Watched"
+        collectionActions.watchedToggleTitle
     }
 
     private var droppedToggleTitle: String {
-        isDropped ? "Undrop" : "Drop"
+        collectionActions.droppedToggleTitle
     }
 
     private var isAddedToList: Bool {
-        collectionStore.isInPlanToWatch(item)
+        collectionActions.isAddedToList
     }
 
     private var isFavorite: Bool {
-        collectionStore.isFavorite(item)
+        collectionActions.isFavorite
     }
 
     private var isWatched: Bool {
-        collectionStore.isWatched(item)
+        collectionActions.isWatched
     }
 
     private var isDropped: Bool {
-        collectionStore.isDropped(item)
+        collectionActions.isDropped
     }
 
     private func handleWatchedAction() {
@@ -131,16 +131,10 @@ struct CatalogItemContextMenuModifier: ViewModifier {
 
     @MainActor
     private func applySeriesWatchedAction(episodes: [CatalogEpisode]) {
-        guard !episodes.isEmpty else { return }
-
-        if episodeWatchStore.isSeriesFullyWatched(item, episodes: episodes) {
-            episodeWatchStore.clearWatched(item, episodes: episodes)
-            collectionStore.setWatched(item, isWatched: false)
-        } else if episodeWatchStore.hasWatchedEpisodes(for: item) {
-            pendingWatchedEpisodes = episodes
+        let actions = CatalogItemCollectionActions(item: item, episodes: episodes)
+        if case let .confirmMarkAll(episodesToConfirm) = actions.applyWatchedAction() {
+            pendingWatchedEpisodes = episodesToConfirm
             isConfirmingMarkAllWatched = true
-        } else {
-            markSeriesWatched(episodes: episodes)
         }
     }
 
@@ -150,19 +144,14 @@ struct CatalogItemContextMenuModifier: ViewModifier {
     }
 
     private func markSeriesWatched(episodes: [CatalogEpisode]) {
-        episodeWatchStore.markAllWatched(item, episodes: episodes)
-        collectionStore.setWatched(item, isWatched: true)
+        CatalogItemCollectionActions(item: item, episodes: episodes)
+            .markSeriesWatched(episodes: episodes)
     }
 
     @MainActor
     private func clearWatchedEpisodesBeforeDropping(episodes: [CatalogEpisode]) {
-        if episodes.isEmpty {
-            episodeWatchStore.clearWatched(item)
-        } else {
-            episodeWatchStore.clearWatched(item, episodes: episodes)
-        }
-
-        collectionStore.toggleDropped(item)
+        CatalogItemCollectionActions(item: item, episodes: episodes)
+            .applyDroppedAction()
     }
 }
 
