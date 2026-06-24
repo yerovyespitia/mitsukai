@@ -5,6 +5,7 @@ struct InfoView: View {
     @ObservedObject private var episodeWatchStore = EpisodeWatchStore.shared
     @StateObject private var viewModel: InfoViewModel
     @State private var isSourcesBackHovered = false
+    @Environment(\.dismiss) private var dismiss
     private let contentHorizontalPadding: CGFloat = 72
 
     init(item: CatalogItem) {
@@ -48,6 +49,7 @@ struct InfoView: View {
         .task(id: item.id) {
             await viewModel.loadDetail()
         }
+        .escapeKeyShortcut(performBackAction)
     }
 
     @ViewBuilder
@@ -298,6 +300,14 @@ struct InfoView: View {
                 scrollProxy.scrollTo(episodeID, anchor: .top)
             }
             viewModel.clearPendingEpisodeScroll()
+        }
+    }
+
+    private func performBackAction() {
+        if viewModel.selectedEpisodeID != nil {
+            viewModel.showEpisodes()
+        } else {
+            dismiss()
         }
     }
 }

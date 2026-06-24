@@ -11,6 +11,7 @@ struct StreamPlayerChrome: View {
     let isFullscreen: Bool
     let audioTracks: [PlayerMediaTrack]
     let subtitleTracks: [PlayerMediaTrack]
+    let canPlayNextEpisode: Bool
     let onBack: () -> Void
     let onPlayPause: () -> Void
     let onSeekBackward: () -> Void
@@ -18,6 +19,7 @@ struct StreamPlayerChrome: View {
     let onSeek: (Double) -> Void
     let onVolumeChange: (Double) -> Void
     let onMute: () -> Void
+    let onNextEpisode: () -> Void
     let onAudioTrackSelect: (PlayerMediaTrack) -> Void
     let onSubtitleTrackSelect: (PlayerMediaTrack) -> Void
     let onFullscreen: () -> Void
@@ -36,9 +38,9 @@ struct StreamPlayerChrome: View {
         .padding(.bottom, 18)
         .background {
             chromeGradient
+                .ignoresSafeArea()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .ignoresSafeArea()
     }
 
     private var header: some View {
@@ -129,6 +131,14 @@ struct StreamPlayerChrome: View {
                     help: isPaused ? "Play" : "Pause",
                     action: onPlayPause
                 )
+
+                if canPlayNextEpisode {
+                    PlayerIconButton(
+                        systemName: "forward.end.fill",
+                        help: "Next episode",
+                        action: onNextEpisode
+                    )
+                }
 
                 PlayerIconButton(
                     systemName: isMuted || volume == 0 ? "speaker.slash.fill" : "speaker.wave.2.fill",

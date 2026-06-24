@@ -7,6 +7,8 @@ struct CinemetaCatalogView: View {
     let fallbackItems: [CatalogItem]
 
     @ObservedObject private var catalogStore: CinemetaCatalogStore
+    @State private var detailItemFromContextMenu: CatalogItem?
+    @State private var isShowingContextMenuDetail = false
 
     init(title: String, type: CinemetaType, filters: [String], fallbackItems: [CatalogItem]) {
         self.title = title
@@ -30,6 +32,11 @@ struct CinemetaCatalogView: View {
                     header
                     filterBar
                     content
+                }
+            }
+            .navigationDestination(isPresented: $isShowingContextMenuDetail) {
+                if let detailItemFromContextMenu {
+                    InfoView(item: detailItemFromContextMenu)
                 }
             }
         }
@@ -105,7 +112,12 @@ struct CinemetaCatalogView: View {
                 ], spacing: 20) {
                     ForEach(displayItems) { item in
                         NavigationLink(destination: InfoView(item: item)) {
-                            CatalogPosterCard(item: item)
+                            CatalogPosterCard(
+                                item: item,
+                                onViewDetails: {
+                                    showContextMenuDetail(for: item)
+                                }
+                            )
                         }
                         .buttonStyle(.plain)
                     }
@@ -118,5 +130,10 @@ struct CinemetaCatalogView: View {
 
     private var displayItems: [CatalogItem] {
         catalogStore.items.isEmpty ? fallbackItems : catalogStore.items
+    }
+
+    private func showContextMenuDetail(for item: CatalogItem) {
+        detailItemFromContextMenu = item
+        isShowingContextMenuDetail = true
     }
 }

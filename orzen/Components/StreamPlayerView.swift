@@ -30,6 +30,9 @@ struct StreamPlayerView: View {
     @State private var appliedSavedAudioTrackID: String?
     @State private var appliedSavedSubtitleTrackID: String?
     @State private var lastSavedProgressPosition: Double = 0
+    @State private var isLoadingNextEpisode = false
+    @State private var prefetchedNextEpisodeID: CatalogEpisode.ID?
+    @State private var prefetchedNextSource: StreamSource?
     @StateObject private var playbackObserver = StreamPlaybackObserver()
     @StateObject private var mpvController = MPVPlaybackController()
     @StateObject private var chromeVisibility = StreamPlayerChromeVisibilityController()
@@ -42,11 +45,11 @@ struct StreamPlayerView: View {
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
+            keyboardShortcuts
             playerSurface
             playerChrome
             startingOverlay
             errorOverlay
-            keyboardShortcuts
         }
         .background(Color.black)
         .contentShape(Rectangle())
@@ -57,7 +60,7 @@ struct StreamPlayerView: View {
         }
         .onAppear {
             pendingResumePosition = progressStore.resumePosition(for: request)
-            pendingTrackSelections = progressStore.trackSelections(for: request)
+            pendingTrackSelections = request.initialTrackSelections ?? progressStore.trackSelections(for: request)
             progressStore.beginPlayback(for: request)
             startPlaybackIfPossible()
             refreshFullscreenState()
@@ -72,6 +75,9 @@ struct StreamPlayerView: View {
         }
         .task(id: request.id) {
             await loadExternalSubtitles()
+        }
+        .task(id: nextEpisode?.id) {
+            await prefetchNextSource()
         }
         .onReceive(mpvController.$errorMessage) { errorMessage in
             guard errorMessage != nil else { return }
@@ -103,6 +109,9 @@ struct StreamPlayerView: View {
         }
         .onReceive(Timer.publish(every: 30, on: .main, in: .common).autoconnect()) { _ in
             saveCurrentProgress()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
+            saveCurrentProgress(force: true)
         }
         .onDisappear {
             saveCurrentProgress(force: true)
@@ -145,6 +154,7 @@ struct StreamPlayerView: View {
             isFullscreen: isFullscreen,
             audioTracks: audioTracks,
             subtitleTracks: subtitleTracks,
+            canPlayNextEpisode: nextEpisode != nil,
             onBack: handleBack,
             onPlayPause: togglePlayPause,
             onSeekBackward: {
@@ -156,12 +166,14 @@ struct StreamPlayerView: View {
             onSeek: seek(to:),
             onVolumeChange: setVolume(_:),
             onMute: toggleMute,
+            onNextEpisode: playNextEpisode,
             onAudioTrackSelect: selectAudioTrack(_:),
             onSubtitleTrackSelect: selectSubtitleTrack(_:),
             onFullscreen: toggleFullscreen
         )
         .opacity(isChromePresented ? 1 : 0)
         .allowsHitTesting(isChromePresented)
+        .zIndex(3)
         .animation(.easeInOut(duration: 0.24), value: isChromePresented)
     }
 
@@ -173,6 +185,7 @@ struct StreamPlayerView: View {
                 .tint(.white)
                 .padding(24)
                 .background(Color.black.opacity(0.42), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .zIndex(2)
         }
     }
 
@@ -185,6 +198,7 @@ struct StreamPlayerView: View {
                 message: errorMessage
             )
             .padding(24)
+            .zIndex(2)
         }
     }
 
@@ -256,6 +270,16 @@ struct StreamPlayerView: View {
             audio: selectedTrackChoice(from: audioTracks, kind: .audio),
             subtitle: selectedTrackChoice(from: subtitleTracks, kind: .subtitle)
         )
+    }
+
+    private var nextEpisode: CatalogEpisode? {
+        guard request.contentType == .series,
+              let item = request.item,
+              let episode = request.episode else {
+            return nil
+        }
+
+        return episodeWatchStore.nextEpisode(after: episode, in: item)
     }
 
     private func scheduleChromeHideIfNeeded() {
@@ -371,6 +395,12 @@ struct StreamPlayerView: View {
 
         if progressStore.isComplete(position: currentTime, duration: duration, contentType: request.contentType) {
             completeCurrentContent()
+            return
+        }
+
+        if let pendingResumePosition,
+           !hasAppliedSavedProgress,
+           currentTime < pendingResumePosition {
             return
         }
 
@@ -516,6 +546,78 @@ struct StreamPlayerView: View {
                 break
             }
         }
+    }
+
+    private func playNextEpisode() {
+        guard !isLoadingNextEpisode,
+              let item = request.item,
+              let nextEpisode else {
+            return
+        }
+
+        isLoadingNextEpisode = true
+        saveCurrentProgress(force: true)
+        let trackSelections = currentTrackSelections
+
+        Task {
+            let source: StreamSource?
+            if let prefetchedSource = prefetchedSource(for: nextEpisode) {
+                source = prefetchedSource
+            } else {
+                source = await firstSource(for: nextEpisode)
+            }
+
+            await MainActor.run {
+                isLoadingNextEpisode = false
+                guard let source else { return }
+
+                StreamPlaybackStore.shared.request = StreamPlaybackRequest(
+                    source: source,
+                    title: nextEpisode.playbackTitle,
+                    subtitle: item.title,
+                    contentID: nextEpisode.id,
+                    contentType: .series,
+                    item: item,
+                    episode: nextEpisode,
+                    initialTrackSelections: trackSelections
+                )
+            }
+        }
+    }
+
+    private func prefetchNextSource() async {
+        guard let nextEpisode else {
+            prefetchedNextEpisodeID = nil
+            prefetchedNextSource = nil
+            return
+        }
+
+        prefetchedNextEpisodeID = nextEpisode.id
+        prefetchedNextSource = nil
+        let source = await firstSource(for: nextEpisode)
+        guard prefetchedNextEpisodeID == nextEpisode.id else { return }
+        prefetchedNextSource = source
+    }
+
+    private func prefetchedSource(for episode: CatalogEpisode) -> StreamSource? {
+        guard prefetchedNextEpisodeID == episode.id else { return nil }
+        return prefetchedNextSource
+    }
+
+    private func firstSource(for episode: CatalogEpisode) async -> StreamSource? {
+        for addon in addonStore.streamAddons {
+            let sources = (try? await StremioStreamClient.fetchSources(
+                from: addon,
+                type: .series,
+                id: episode.id
+            )) ?? []
+
+            if let source = sources.first {
+                return source
+            }
+        }
+
+        return nil
     }
 
     private func selectAudioTrack(_ track: PlayerMediaTrack) {

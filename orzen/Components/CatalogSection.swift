@@ -11,6 +11,8 @@ struct CatalogSectionView: View {
     var cardStyle: CardStyle = .poster
     var showsDroppedContextAction = false
     var onItemSelected: ((CatalogItem) -> Void)?
+    @State private var detailItemFromContextMenu: CatalogItem?
+    @State private var isShowingContextMenuDetail = false
 
     private let posterWidth: CGFloat = 144
     private let posterHeight: CGFloat = 216
@@ -61,6 +63,11 @@ struct CatalogSectionView: View {
             }
         }
         .padding(.bottom, 22)
+        .navigationDestination(isPresented: $isShowingContextMenuDetail) {
+            if let detailItemFromContextMenu {
+                InfoView(item: detailItemFromContextMenu)
+            }
+        }
     }
 
     @ViewBuilder
@@ -69,14 +76,25 @@ struct CatalogSectionView: View {
         case .poster:
             SeriesCard(
                 item: item,
-                showsDroppedContextAction: showsDroppedContextAction
+                showsDroppedContextAction: showsDroppedContextAction,
+                onViewDetails: {
+                    showContextMenuDetail(for: item)
+                }
             )
         case .watching:
             WatchingCard(
                 item: item,
-                showsDroppedContextAction: showsDroppedContextAction
+                showsDroppedContextAction: showsDroppedContextAction,
+                onViewDetails: {
+                    showContextMenuDetail(for: item)
+                }
             )
         }
+    }
+
+    private func showContextMenuDetail(for item: CatalogItem) {
+        detailItemFromContextMenu = item
+        isShowingContextMenuDetail = true
     }
 
     private var cardWidth: CGFloat {
@@ -101,6 +119,7 @@ struct CatalogSectionView: View {
 private struct WatchingCard: View {
     let item: CatalogItem
     var showsDroppedContextAction = false
+    var onViewDetails: (() -> Void)?
 
     @ObservedObject private var episodeWatchStore = EpisodeWatchStore.shared
     @ObservedObject private var progressStore = PlaybackProgressStore.shared
@@ -148,7 +167,11 @@ private struct WatchingCard: View {
         .onHover { hovering in
             isHovered = hovering
         }
-        .catalogItemContextMenu(item: item, showsDroppedAction: showsDroppedContextAction)
+        .catalogItemContextMenu(
+            item: item,
+            showsDroppedAction: showsDroppedContextAction,
+            onViewDetails: onViewDetails
+        )
     }
 
     @ViewBuilder

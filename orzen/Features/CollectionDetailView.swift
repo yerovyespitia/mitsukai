@@ -5,6 +5,9 @@ struct CollectionDetailView: View {
     let collection: MediaCollection
     @ObservedObject private var collectionStore = CollectionStore.shared
     @ObservedObject private var episodeWatchStore = EpisodeWatchStore.shared
+    @State private var detailItemFromContextMenu: CatalogItem?
+    @State private var isShowingContextMenuDetail = false
+    @Environment(\.dismiss) private var dismiss
     private let contentHorizontalPadding: CGFloat = 16
     private let contentTopPadding: CGFloat = 8
     private let contentSpacing: CGFloat = 12
@@ -49,7 +52,10 @@ struct CollectionDetailView: View {
                                 NavigationLink(destination: InfoView(item: item)) {
                                     CatalogPosterCard(
                                         item: item,
-                                        showsDroppedContextAction: showsDroppedContextAction
+                                        showsDroppedContextAction: showsDroppedContextAction,
+                                        onViewDetails: {
+                                            showContextMenuDetail(for: item)
+                                        }
                                     )
                                 }
                                 .buttonStyle(.plain)
@@ -63,6 +69,14 @@ struct CollectionDetailView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         .navigationTitle(currentCollection.name)
+        .navigationDestination(isPresented: $isShowingContextMenuDetail) {
+            if let detailItemFromContextMenu {
+                InfoView(item: detailItemFromContextMenu)
+            }
+        }
+        .escapeKeyShortcut {
+            dismiss()
+        }
     }
 
     private var currentCollection: MediaCollection {
@@ -99,6 +113,11 @@ struct CollectionDetailView: View {
         }
 
         return "This collection does not have any saved titles."
+    }
+
+    private func showContextMenuDetail(for item: CatalogItem) {
+        detailItemFromContextMenu = item
+        isShowingContextMenuDetail = true
     }
 }
 

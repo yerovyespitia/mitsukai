@@ -14,11 +14,13 @@ struct SeriesView: View {
 struct SeriesCard: View {
     let item: CatalogItem
     var showsDroppedContextAction = false
+    var onViewDetails: (() -> Void)?
     
     var body: some View {
         CatalogPosterCard(
             item: item,
-            showsDroppedContextAction: showsDroppedContextAction
+            showsDroppedContextAction: showsDroppedContextAction,
+            onViewDetails: onViewDetails
         )
     }
 }

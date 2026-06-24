@@ -2,6 +2,8 @@ import SwiftUI
 
 struct SearchView: View {
     @State private var searchText = ""
+    @State private var detailItemFromContextMenu: CatalogItem?
+    @State private var isShowingContextMenuDetail = false
     @ObservedObject private var searchStore = SearchCatalogStore.shared
 
     var body: some View {
@@ -15,6 +17,11 @@ struct SearchView: View {
                     Spacer()
                 }
                 .padding(.top, 20)
+            }
+            .navigationDestination(isPresented: $isShowingContextMenuDetail) {
+                if let detailItemFromContextMenu {
+                    InfoView(item: detailItemFromContextMenu)
+                }
             }
         }
         .task {
@@ -104,7 +111,12 @@ struct SearchView: View {
                 ], spacing: 20) {
                     ForEach(searchStore.results) { item in
                         NavigationLink(destination: InfoView(item: item)) {
-                            CatalogPosterCard(item: item)
+                            CatalogPosterCard(
+                                item: item,
+                                onViewDetails: {
+                                    showContextMenuDetail(for: item)
+                                }
+                            )
                         }
                         .buttonStyle(.plain)
                     }
@@ -143,6 +155,11 @@ struct SearchView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func showContextMenuDetail(for item: CatalogItem) {
+        detailItemFromContextMenu = item
+        isShowingContextMenuDetail = true
     }
 }
 

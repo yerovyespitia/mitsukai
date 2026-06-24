@@ -71,3 +71,17 @@ struct PlaybackKeyboardShortcutView: NSViewRepresentable {
         }
     }
 }
+
+extension View {
+    func escapeKeyShortcut(_ action: @escaping () -> Void) -> some View {
+        overlay(alignment: .bottomLeading) {
+            Button(action: action) {
+                EmptyView()
+            }
+            .keyboardShortcut(.cancelAction)
+            .frame(width: 0, height: 0)
+            .opacity(0)
+            .accessibilityHidden(true)
+        }
+    }
+}

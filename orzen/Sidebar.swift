@@ -117,6 +117,7 @@ struct SidebarView<DetailContent: View>: View {
                             }
                         }
                     )
+                    .id(playbackRequest.id)
                     .zIndex(10)
                     .transition(.opacity)
                 }

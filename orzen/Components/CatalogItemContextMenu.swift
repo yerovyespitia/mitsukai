@@ -3,9 +3,9 @@ import SwiftUI
 struct CatalogItemContextMenuModifier: ViewModifier {
     let item: CatalogItem
     let showsDroppedAction: Bool
+    var onViewDetails: (() -> Void)?
     @ObservedObject private var collectionStore = CollectionStore.shared
     @ObservedObject private var episodeWatchStore = EpisodeWatchStore.shared
-    @State private var isShowingDetails = false
     @State private var isConfirmingMarkAllWatched = false
     @State private var pendingWatchedEpisodes: [CatalogEpisode] = []
 
@@ -15,14 +15,11 @@ struct CatalogItemContextMenuModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .navigationDestination(isPresented: $isShowingDetails) {
-                InfoView(item: item)
-            }
             .contextMenu {
-                Button {
-                    isShowingDetails = true
-                } label: {
-                    Label("View Details", systemImage: "info.circle")
+                if let onViewDetails {
+                    Button(action: onViewDetails) {
+                        Label("View Details", systemImage: "info.circle")
+                    }
                 }
 
                 Button {
@@ -156,7 +153,15 @@ struct CatalogItemContextMenuModifier: ViewModifier {
 }
 
 extension View {
-    func catalogItemContextMenu(item: CatalogItem, showsDroppedAction: Bool = false) -> some View {
-        modifier(CatalogItemContextMenuModifier(item: item, showsDroppedAction: showsDroppedAction))
+    func catalogItemContextMenu(
+        item: CatalogItem,
+        showsDroppedAction: Bool = false,
+        onViewDetails: (() -> Void)? = nil
+    ) -> some View {
+        modifier(CatalogItemContextMenuModifier(
+            item: item,
+            showsDroppedAction: showsDroppedAction,
+            onViewDetails: onViewDetails
+        ))
     }
 }

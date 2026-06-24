@@ -61,6 +61,17 @@ final class EpisodeWatchStore: ObservableObject {
         return progress.episodes.first { !watchedIDs.contains($0.id) }
     }
 
+    func nextEpisode(after episode: CatalogEpisode, in item: CatalogItem) -> CatalogEpisode? {
+        guard let progress = seriesProgress[item.id],
+              let currentIndex = progress.episodes.firstIndex(where: { $0.id == episode.id }) else {
+            return nil
+        }
+
+        let nextIndex = progress.episodes.index(after: currentIndex)
+        guard progress.episodes.indices.contains(nextIndex) else { return nil }
+        return progress.episodes[nextIndex]
+    }
+
     func toggleWatched(_ episode: CatalogEpisode) {
         toggleEpisodeID(episode.id)
         save()

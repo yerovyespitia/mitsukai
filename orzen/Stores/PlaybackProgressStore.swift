@@ -30,7 +30,8 @@ struct PlaybackProgressEntry: Codable, Identifiable {
             contentID: contentID,
             contentType: contentType,
             item: item,
-            episode: episode
+            episode: episode,
+            initialTrackSelections: trackSelections
         )
     }
 
@@ -39,12 +40,12 @@ struct PlaybackProgressEntry: Codable, Identifiable {
     }
 }
 
-struct PlaybackTrackSelections: Codable, Equatable {
+struct PlaybackTrackSelections: Codable, Equatable, Sendable {
     var audio: PlaybackTrackChoice?
     var subtitle: PlaybackTrackChoice?
 }
 
-struct PlaybackTrackChoice: Codable, Equatable {
+struct PlaybackTrackChoice: Codable, Equatable, Sendable {
     let id: String
     let title: String
     let language: String?
@@ -58,7 +59,7 @@ final class PlaybackProgressStore: ObservableObject {
     @Published private(set) var entries: [PlaybackProgressEntry] = []
 
     private static let storageKey = "OrzenPlaybackProgressJSON"
-    private static let minimumStoredPosition: Double = 10
+    private static let minimumResumePosition: Double = 1
     private static let seriesCompletionRemainingSeconds: Double = 180
     private static let movieCompletionRemainingSeconds: Double = 420
 
@@ -81,7 +82,7 @@ final class PlaybackProgressStore: ObservableObject {
     func resumePosition(for request: StreamPlaybackRequest) -> Double? {
         guard let entry = entry(contentID: request.contentID, contentType: request.contentType),
               sourcesMatch(entry.source, request.source),
-              entry.position >= Self.minimumStoredPosition else {
+              entry.position >= Self.minimumResumePosition else {
             return nil
         }
 
@@ -149,7 +150,7 @@ final class PlaybackProgressStore: ObservableObject {
             return
         }
 
-        guard force || position >= Self.minimumStoredPosition else { return }
+        guard force || position >= Self.minimumResumePosition else { return }
 
         saveEntry(
             PlaybackProgressEntry(
@@ -204,7 +205,6 @@ final class PlaybackProgressStore: ObservableObject {
         var seenItemIDs = Set<CatalogItem.ID>()
 
         return entries
-            .filter { $0.position >= Self.minimumStoredPosition }
             .sorted { $0.updatedAt > $1.updatedAt }
             .filter { entry in
                 guard !seenItemIDs.contains(entry.item.id) else { return false }

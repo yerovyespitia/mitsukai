@@ -3,6 +3,7 @@ import SwiftUI
 struct CatalogPosterCard: View {
     let item: CatalogItem
     var showsDroppedContextAction = false
+    var onViewDetails: (() -> Void)?
     @State private var isHovered = false
 
     var body: some View {
@@ -49,7 +50,11 @@ struct CatalogPosterCard: View {
         .onHover { hovering in
             isHovered = hovering
         }
-        .catalogItemContextMenu(item: item, showsDroppedAction: showsDroppedContextAction)
+        .catalogItemContextMenu(
+            item: item,
+            showsDroppedAction: showsDroppedContextAction,
+            onViewDetails: onViewDetails
+        )
     }
 
     @ViewBuilder
