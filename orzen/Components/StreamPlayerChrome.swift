@@ -12,6 +12,8 @@ struct StreamPlayerChrome: View {
     let audioTracks: [PlayerMediaTrack]
     let subtitleTracks: [PlayerMediaTrack]
     let canPlayNextEpisode: Bool
+    let canShowEpisodeSidebar: Bool
+    let isEpisodeSidebarPresented: Bool
     let onBack: () -> Void
     let onPlayPause: () -> Void
     let onSeekBackward: () -> Void
@@ -22,6 +24,7 @@ struct StreamPlayerChrome: View {
     let onNextEpisode: () -> Void
     let onAudioTrackSelect: (PlayerMediaTrack) -> Void
     let onSubtitleTrackSelect: (PlayerMediaTrack) -> Void
+    let onEpisodeSidebarToggle: () -> Void
     let onFullscreen: () -> Void
     @State private var hoveredCircularButton: String?
 
@@ -177,6 +180,13 @@ struct StreamPlayerChrome: View {
                     emptyTitle: "No audio tracks",
                     tracks: audioTracks,
                     onSelect: onAudioTrackSelect
+                )
+
+                PlayerIconButton(
+                    systemName: "sidebar.right",
+                    help: canShowEpisodeSidebar ? "Episodes" : "Episodes are available for series",
+                    isEnabled: canShowEpisodeSidebar,
+                    action: onEpisodeSidebarToggle
                 )
 
                 PlayerIconButton(
@@ -404,18 +414,20 @@ private struct PlayerFlatSlider: View {
 private struct PlayerIconButton: View {
     let systemName: String
     let help: String
+    var isEnabled = true
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             Image(systemName: systemName)
                 .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(.white.opacity(0.92))
+                .foregroundColor(.white.opacity(isEnabled ? 0.92 : 0.38))
                 .frame(width: 28, height: 28)
         }
         .buttonStyle(.plain)
         .help(help)
         .accessibilityLabel(help)
+        .disabled(!isEnabled)
     }
 }
 

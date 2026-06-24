@@ -31,6 +31,7 @@ struct StreamPlayerView: View {
     @State private var appliedSavedSubtitleTrackID: String?
     @State private var lastSavedProgressPosition: Double = 0
     @State private var isLoadingNextEpisode = false
+    @State private var isEpisodeSidebarPresented = false
     @State private var prefetchedNextEpisodeID: CatalogEpisode.ID?
     @State private var prefetchedNextSource: StreamSource?
     @StateObject private var playbackObserver = StreamPlaybackObserver()
@@ -48,6 +49,7 @@ struct StreamPlayerView: View {
             keyboardShortcuts
             playerSurface
             playerChrome
+            episodeSidebar
             startingOverlay
             errorOverlay
         }
@@ -96,6 +98,13 @@ struct StreamPlayerView: View {
                 scheduleChromeHideIfNeeded()
             } else {
                 chromeVisibility.keepVisible()
+            }
+        }
+        .onChange(of: isEpisodeSidebarPresented) { _, isPresented in
+            if isPresented {
+                chromeVisibility.keepVisible()
+            } else {
+                scheduleChromeHideIfNeeded()
             }
         }
         .onChange(of: duration) { _, _ in
@@ -155,6 +164,8 @@ struct StreamPlayerView: View {
             audioTracks: audioTracks,
             subtitleTracks: subtitleTracks,
             canPlayNextEpisode: nextEpisode != nil,
+            canShowEpisodeSidebar: canShowEpisodeSidebar,
+            isEpisodeSidebarPresented: isEpisodeSidebarPresented,
             onBack: handleBack,
             onPlayPause: togglePlayPause,
             onSeekBackward: {
@@ -169,12 +180,31 @@ struct StreamPlayerView: View {
             onNextEpisode: playNextEpisode,
             onAudioTrackSelect: selectAudioTrack(_:),
             onSubtitleTrackSelect: selectSubtitleTrack(_:),
+            onEpisodeSidebarToggle: toggleEpisodeSidebar,
             onFullscreen: toggleFullscreen
         )
         .opacity(isChromePresented ? 1 : 0)
         .allowsHitTesting(isChromePresented)
         .zIndex(3)
         .animation(.easeInOut(duration: 0.24), value: isChromePresented)
+    }
+
+    @ViewBuilder
+    private var episodeSidebar: some View {
+        if isEpisodeSidebarPresented, let item = request.item {
+            HStack(spacing: 0) {
+                Spacer(minLength: 0)
+
+                StreamPlayerEpisodeSidebar(
+                    item: item,
+                    currentEpisodeID: request.episode?.id,
+                    currentSourceID: request.source.id,
+                    currentTrackSelections: currentTrackSelections,
+                    onClose: closeEpisodeSidebar
+                )
+            }
+            .zIndex(4)
+        }
     }
 
     @ViewBuilder
@@ -208,6 +238,7 @@ struct StreamPlayerView: View {
             onBack: handleBack,
             onPlayPause: togglePlayPause,
             onFullscreen: toggleFullscreen,
+            onEpisodeSidebarToggle: toggleEpisodeSidebar,
             onMute: toggleMute,
             onSeekBackward: {
                 seek(by: -5)
@@ -262,7 +293,7 @@ struct StreamPlayerView: View {
     }
 
     private var shouldAutoHideChrome: Bool {
-        !isPaused && playbackErrorMessage == nil
+        !isPaused && playbackErrorMessage == nil && !isEpisodeSidebarPresented
     }
 
     private var currentTrackSelections: PlaybackTrackSelections {
@@ -280,6 +311,10 @@ struct StreamPlayerView: View {
         }
 
         return episodeWatchStore.nextEpisode(after: episode, in: item)
+    }
+
+    private var canShowEpisodeSidebar: Bool {
+        request.contentType == .series && request.item != nil
     }
 
     private func scheduleChromeHideIfNeeded() {
@@ -305,6 +340,11 @@ struct StreamPlayerView: View {
 
     private func handleEscape() {
         guard !isClosing else { return }
+        if isEpisodeSidebarPresented {
+            closeEpisodeSidebar()
+            return
+        }
+
         guard !exitFullscreenIfNeeded() else { return }
 
         closePlayer()
@@ -324,6 +364,25 @@ struct StreamPlayerView: View {
         player?.pause()
         mpvController.pause()
         onBack()
+    }
+
+    private func toggleEpisodeSidebar() {
+        guard canShowEpisodeSidebar else { return }
+
+        performPlayerAction {
+            isEpisodeSidebarPresented.toggle()
+            if isEpisodeSidebarPresented {
+                chromeVisibility.keepVisible()
+            }
+        }
+    }
+
+    private func closeEpisodeSidebar() {
+        guard isEpisodeSidebarPresented else { return }
+
+        performPlayerAction {
+            isEpisodeSidebarPresented = false
+        }
     }
 
     private func startPlaybackIfPossible() {
