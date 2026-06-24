@@ -79,6 +79,8 @@ struct SidebarView<DetailContent: View>: View {
 
                                     Spacer()
                                 }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
                             .keyboardShortcut(sidebarShortcut(for: index), modifiers: .command)
@@ -90,7 +92,6 @@ struct SidebarView<DetailContent: View>: View {
                                         .fill(Color.white.opacity(0.1))
                                 }
                             }
-                            .contentShape(Rectangle())
                         }
                     }
                     .listStyle(.sidebar)
