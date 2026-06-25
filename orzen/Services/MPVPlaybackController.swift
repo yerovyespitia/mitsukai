@@ -11,6 +11,7 @@ final class MPVPlaybackController: ObservableObject {
     @Published var duration: Double = 0
     @Published var volume: Double = 100
     @Published var isMuted = false
+    @Published var didReachEnd = false
     @Published var audioTracks: [PlayerMediaTrack] = []
     @Published var subtitleTracks: [PlayerMediaTrack] = []
 
@@ -39,6 +40,12 @@ final class MPVPlaybackController: ObservableObject {
         errorMessage = nil
         isStarting = true
         isRunning = false
+        isPaused = false
+        currentTime = 0
+        duration = 0
+        didReachEnd = false
+        audioTracks = []
+        subtitleTracks = []
     }
 
     func markRunning() {
@@ -53,6 +60,7 @@ final class MPVPlaybackController: ObservableObject {
         isPaused = false
         currentTime = 0
         duration = 0
+        didReachEnd = false
     }
 
     func togglePlayPause() {

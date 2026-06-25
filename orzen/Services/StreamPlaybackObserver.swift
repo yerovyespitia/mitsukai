@@ -3,13 +3,16 @@ import AVKit
 @MainActor
 final class StreamPlaybackObserver: ObservableObject {
     @Published var errorMessage: String?
+    @Published var didFinishToEnd = false
 
     private var statusObservation: NSKeyValueObservation?
     private var failedToPlayObserver: NSObjectProtocol?
+    private var didPlayToEndObserver: NSObjectProtocol?
 
     func observe(playerItem: AVPlayerItem) {
         stop()
         errorMessage = nil
+        didFinishToEnd = false
 
         statusObservation = playerItem.observe(\.status, options: [.initial, .new]) { [weak self] item, _ in
             Task { @MainActor in
@@ -28,6 +31,16 @@ final class StreamPlaybackObserver: ObservableObject {
                 self?.errorMessage = Self.message(from: error)
             }
         }
+
+        didPlayToEndObserver = NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemDidPlayToEndTime,
+            object: playerItem,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.didFinishToEnd = true
+            }
+        }
     }
 
     func stop() {
@@ -37,6 +50,11 @@ final class StreamPlaybackObserver: ObservableObject {
         if let failedToPlayObserver {
             NotificationCenter.default.removeObserver(failedToPlayObserver)
             self.failedToPlayObserver = nil
+        }
+
+        if let didPlayToEndObserver {
+            NotificationCenter.default.removeObserver(didPlayToEndObserver)
+            self.didPlayToEndObserver = nil
         }
     }
 

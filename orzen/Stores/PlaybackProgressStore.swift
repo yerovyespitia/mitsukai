@@ -130,6 +130,30 @@ final class PlaybackProgressStore: ObservableObject {
         )
     }
 
+    func savePendingProgress(
+        for item: CatalogItem,
+        episode: CatalogEpisode,
+        source: StreamSource,
+        subtitle: String,
+        trackSelections: PlaybackTrackSelections? = nil
+    ) {
+        saveEntry(
+            PlaybackProgressEntry(
+                contentID: episode.id,
+                contentType: .series,
+                item: item,
+                episode: episode,
+                source: source,
+                title: episode.playbackTitle,
+                subtitle: subtitle,
+                position: 0,
+                duration: 0,
+                trackSelections: trackSelections,
+                updatedAt: Date()
+            )
+        )
+    }
+
     func saveProgress(
         for request: StreamPlaybackRequest,
         position: Double,

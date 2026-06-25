@@ -4,11 +4,13 @@ import SwiftUI
 struct MPVPlayerView: NSViewRepresentable {
     let url: URL
     let externalSubtitles: [ExternalSubtitleTrack]
+    let onEscape: () -> Void
     @ObservedObject var controller: MPVPlaybackController
 
     func makeNSView(context: Context) -> MPVOpenGLPlayerView {
         let view = MPVOpenGLPlayerView()
         view.controller = controller
+        view.onEscape = onEscape
         DispatchQueue.main.async { [weak view] in
             view?.load(url: url, externalSubtitles: externalSubtitles)
         }
@@ -17,6 +19,7 @@ struct MPVPlayerView: NSViewRepresentable {
 
     func updateNSView(_ nsView: MPVOpenGLPlayerView, context: Context) {
         nsView.controller = controller
+        nsView.onEscape = onEscape
         DispatchQueue.main.async { [weak nsView] in
             nsView?.load(url: url, externalSubtitles: externalSubtitles)
         }
@@ -37,6 +40,7 @@ private final class MPVRenderCallbackTarget {
 
 final class MPVOpenGLPlayerView: NSOpenGLView {
     weak var controller: MPVPlaybackController?
+    var onEscape: (() -> Void)?
 
     private var mpv: OpaquePointer?
     private var renderContext: OpaquePointer?
@@ -85,6 +89,11 @@ final class MPVOpenGLPlayerView: NSOpenGLView {
     }
 
     override func keyDown(with event: NSEvent) {
+        if event.keyCode == 53 {
+            onEscape?()
+            return
+        }
+
         switch event.charactersIgnoringModifiers?.lowercased() {
         case " ":
             togglePlayPause()
@@ -249,9 +258,18 @@ final class MPVOpenGLPlayerView: NSOpenGLView {
 
     func refreshPlaybackState() {
         guard let mpv else { return }
-        controller?.isPaused = boolProperty("pause", handle: mpv) ?? false
-        controller?.currentTime = doubleProperty("time-pos", handle: mpv) ?? 0
-        controller?.duration = doubleProperty("duration", handle: mpv) ?? 0
+        let didReachEnd = boolProperty("eof-reached", handle: mpv) ?? false
+        let previousDuration = controller?.duration ?? 0
+        let resolvedDuration = doubleProperty("duration", handle: mpv) ?? previousDuration
+
+        controller?.didReachEnd = didReachEnd
+        controller?.isPaused = (boolProperty("pause", handle: mpv) ?? false) || didReachEnd
+        controller?.duration = resolvedDuration
+        if let currentTime = doubleProperty("time-pos", handle: mpv) {
+            controller?.currentTime = currentTime
+        } else if didReachEnd, resolvedDuration > 0 {
+            controller?.currentTime = resolvedDuration
+        }
         controller?.volume = doubleProperty("volume", handle: mpv) ?? controller?.volume ?? 100
         controller?.isMuted = boolProperty("mute", handle: mpv) ?? false
         controller?.audioTracks = mediaTracks(ofType: .audio, handle: mpv)

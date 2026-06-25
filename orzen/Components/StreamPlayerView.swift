@@ -30,6 +30,8 @@ struct StreamPlayerView: View {
     @State private var appliedSavedAudioTrackID: String?
     @State private var appliedSavedSubtitleTrackID: String?
     @State private var lastSavedProgressPosition: Double = 0
+    @State private var hasCompletedCurrentContent = false
+    @State private var hasHandledPlaybackEnd = false
     @State private var isLoadingNextEpisode = false
     @State private var isEpisodeSidebarPresented = false
     @State private var prefetchedNextEpisodeID: CatalogEpisode.ID?
@@ -100,6 +102,14 @@ struct StreamPlayerView: View {
                 chromeVisibility.keepVisible()
             }
         }
+        .onChange(of: mpvController.didReachEnd) { _, didReachEnd in
+            guard didReachEnd else { return }
+            handlePlaybackEnded()
+        }
+        .onChange(of: playbackObserver.didFinishToEnd) { _, didFinishToEnd in
+            guard didFinishToEnd else { return }
+            handlePlaybackEnded()
+        }
         .onChange(of: isEpisodeSidebarPresented) { _, isPresented in
             if isPresented {
                 chromeVisibility.keepVisible()
@@ -109,6 +119,10 @@ struct StreamPlayerView: View {
         }
         .onChange(of: duration) { _, _ in
             applySavedProgressIfPossible()
+            handlePlaybackEndIfNeeded()
+        }
+        .onChange(of: currentTime) { _, _ in
+            handlePlaybackEndIfNeeded()
         }
         .onChange(of: audioTracks) { _, _ in
             applySavedTrackSelectionsIfPossible()
@@ -138,6 +152,7 @@ struct StreamPlayerView: View {
             MPVPlayerView(
                 url: playbackURL,
                 externalSubtitles: externalSubtitleTracks,
+                onEscape: handleEscape,
                 controller: mpvController
             )
                 .background(Color.black)
@@ -445,7 +460,8 @@ struct StreamPlayerView: View {
     }
 
     private func saveCurrentProgress(force: Bool = false) {
-        guard activePlaybackEngine != nil,
+        guard !hasCompletedCurrentContent,
+              activePlaybackEngine != nil,
               playbackErrorMessage == nil,
               currentTime.isFinite,
               duration.isFinite else {
@@ -476,10 +492,16 @@ struct StreamPlayerView: View {
     }
 
     private func completeCurrentContent() {
+        guard !hasCompletedCurrentContent else { return }
+        hasCompletedCurrentContent = true
+
         guard let item = request.item else {
             progressStore.clearProgress(contentID: request.contentID, contentType: request.contentType)
             return
         }
+
+        let pendingNextEpisode = nextEpisode
+        let trackSelections = currentTrackSelections
 
         switch request.contentType {
         case .movie:
@@ -490,9 +512,79 @@ struct StreamPlayerView: View {
             }
             collectionStore.setDropped(item, isDropped: false)
             collectionStore.setWatched(item, isWatched: episodeWatchStore.isStoredSeriesFullyWatched(item))
+            savePendingNextEpisodeProgress(
+                pendingNextEpisode,
+                in: item,
+                trackSelections: trackSelections
+            )
         }
 
         progressStore.clearProgress(contentID: request.contentID, contentType: request.contentType)
+        chromeVisibility.keepVisible()
+    }
+
+    private func handlePlaybackEnded() {
+        guard !hasHandledPlaybackEnd else { return }
+        hasHandledPlaybackEnd = true
+
+        completeCurrentContent()
+
+        guard request.contentType == .series,
+              nextEpisode != nil else {
+            return
+        }
+
+        playNextEpisode()
+    }
+
+    private func handlePlaybackEndIfNeeded() {
+        guard hasReachedPlaybackEnd else { return }
+        handlePlaybackEnded()
+    }
+
+    private var hasReachedPlaybackEnd: Bool {
+        guard currentTime.isFinite,
+              duration.isFinite,
+              duration > 0 else {
+            return false
+        }
+
+        return max(duration - currentTime, 0) <= 1.25
+    }
+
+    private func savePendingNextEpisodeProgress(
+        _ episode: CatalogEpisode?,
+        in item: CatalogItem,
+        trackSelections: PlaybackTrackSelections
+    ) {
+        guard let episode,
+              !episodeWatchStore.isStoredSeriesFullyWatched(item) else {
+            return
+        }
+
+        let source = prefetchedSource(for: episode) ?? request.source
+        progressStore.savePendingProgress(
+            for: item,
+            episode: episode,
+            source: source,
+            subtitle: item.title,
+            trackSelections: trackSelections
+        )
+
+        guard prefetchedSource(for: episode) == nil else { return }
+
+        Task {
+            guard let refreshedSource = await firstSource(for: episode) else { return }
+            await MainActor.run {
+                progressStore.savePendingProgress(
+                    for: item,
+                    episode: episode,
+                    source: refreshedSource,
+                    subtitle: item.title,
+                    trackSelections: trackSelections
+                )
+            }
+        }
     }
 
     private func loadExternalSubtitles() async {
