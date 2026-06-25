@@ -3,6 +3,7 @@ import SwiftUI
 struct StreamPlayerEpisodeSidebar: View {
     private static let width: CGFloat = 440
     private static let horizontalPadding: CGFloat = 18
+    private static let episodeListTopID = "stream-player-episode-list-top"
 
     let item: CatalogItem
     let currentEpisodeID: CatalogEpisode.ID?
@@ -179,6 +180,10 @@ struct StreamPlayerEpisodeSidebar: View {
     private var episodeList: some View {
         ScrollViewReader { scrollProxy in
             ScrollView {
+                Color.clear
+                    .frame(height: 0)
+                    .id(Self.episodeListTopID)
+
                 LazyVStack(spacing: 10) {
                     ForEach(viewModel.selectedSeasonEpisodes) { episode in
                         episodeButton(episode)
@@ -192,10 +197,10 @@ struct StreamPlayerEpisodeSidebar: View {
                 scrollProxy.scrollTo(episodeID, anchor: .center)
             }
             .onChange(of: viewModel.selectedSeason) { _, _ in
-                scrollToCurrentEpisodeIfNeeded(with: scrollProxy)
+                scrollToSelectedSeasonPosition(with: scrollProxy)
             }
             .onChange(of: viewModel.selectedSeasonEpisodes.map(\.id)) { _, _ in
-                scrollToCurrentEpisodeIfNeeded(with: scrollProxy)
+                scrollToSelectedSeasonPosition(with: scrollProxy)
             }
             .onChange(of: viewModel.hasLoadedDetail) { _, hasLoadedDetail in
                 guard hasLoadedDetail else { return }
@@ -385,9 +390,21 @@ struct StreamPlayerEpisodeSidebar: View {
         }
     }
 
-    private func scrollToCurrentEpisodeIfNeeded(with scrollProxy: ScrollViewProxy) {
-        guard currentEpisode?.season == viewModel.selectedSeason else { return }
-        scrollToCurrentEpisode(with: scrollProxy)
+    private func scrollToSelectedSeasonPosition(with scrollProxy: ScrollViewProxy) {
+        if currentEpisode?.season == viewModel.selectedSeason {
+            scrollToCurrentEpisode(with: scrollProxy)
+        } else {
+            scrollToEpisodeListTop(with: scrollProxy)
+        }
+    }
+
+    private func scrollToEpisodeListTop(with scrollProxy: ScrollViewProxy) {
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(80))
+            withAnimation(.easeInOut(duration: 0.22)) {
+                scrollProxy.scrollTo(Self.episodeListTopID, anchor: .top)
+            }
+        }
     }
 
     private var currentEpisode: CatalogEpisode? {

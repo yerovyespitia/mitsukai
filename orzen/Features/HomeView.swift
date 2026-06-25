@@ -63,13 +63,13 @@ struct HomeView: View {
         }
 
         for addon in matchingAddons {
-            let sources = (try? await StremioStreamClient.fetchSources(
-                from: addon,
+            let sources = await StreamSourceResolver.fetchAllSources(
+                from: [addon],
                 type: entry.contentType,
                 id: entry.contentID
-            )) ?? []
+            )
 
-            if let refreshedSource = matchingSource(for: entry.source, in: sources) {
+            if let refreshedSource = StreamSourceResolver.matchingSource(for: entry.source, in: sources) {
                 return StreamPlaybackRequest(
                     source: refreshedSource,
                     title: storedRequest.title,
@@ -84,12 +84,5 @@ struct HomeView: View {
         }
 
         return storedRequest
-    }
-
-    private func matchingSource(for storedSource: StreamSource, in sources: [StreamSource]) -> StreamSource? {
-        sources.first { $0.id == storedSource.id }
-            ?? sources.first { $0.playbackURL == storedSource.playbackURL }
-            ?? sources.first { $0.title == storedSource.title }
-            ?? sources.first
     }
 }

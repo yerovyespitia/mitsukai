@@ -204,20 +204,11 @@ final class InfoViewModel: ObservableObject {
         isLoadingSources = true
         sourceErrorMessage = nil
 
-        let streamAddons = addonStore.streamAddons
-        let loadedSources = await withTaskGroup(of: [StreamSource].self) { group in
-            for addon in streamAddons {
-                group.addTask {
-                    (try? await StremioStreamClient.fetchSources(from: addon, type: type, id: id)) ?? []
-                }
-            }
-
-            var allSources: [StreamSource] = []
-            for await addonSources in group {
-                allSources.append(contentsOf: addonSources)
-            }
-            return allSources
-        }
+        let loadedSources = await StreamSourceResolver.fetchAllSources(
+            from: addonStore.streamAddons,
+            type: type,
+            id: id
+        )
 
         guard sourceRequestID == id else { return }
         sources = loadedSources

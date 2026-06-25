@@ -635,26 +635,12 @@ struct StreamPlayerView: View {
             return
         }
 
-        let subtitleAddons = addonStore.subtitleAddons
-        let allowedLanguageCodes = subtitlePreferences.selectedLanguageCodes
-        let loadedSubtitles = await withTaskGroup(of: [ExternalSubtitleTrack].self) { group in
-            for addon in subtitleAddons {
-                group.addTask {
-                    (try? await StremioSubtitleClient.fetchSubtitles(
-                        from: addon,
-                        type: request.contentType,
-                        id: request.contentID,
-                        allowedLanguageCodes: allowedLanguageCodes
-                    )) ?? []
-                }
-            }
-
-            var allSubtitles: [ExternalSubtitleTrack] = []
-            for await addonSubtitles in group {
-                allSubtitles.append(contentsOf: addonSubtitles)
-            }
-            return allSubtitles
-        }
+        let loadedSubtitles = await ExternalSubtitleResolver.fetchSubtitles(
+            from: addonStore.subtitleAddons,
+            type: request.contentType,
+            id: request.contentID,
+            allowedLanguageCodes: subtitlePreferences.selectedLanguageCodes
+        )
 
         externalSubtitleTracks = loadedSubtitles
     }
@@ -798,19 +784,11 @@ struct StreamPlayerView: View {
     }
 
     private func firstSource(for episode: CatalogEpisode) async -> StreamSource? {
-        for addon in addonStore.streamAddons {
-            let sources = (try? await StremioStreamClient.fetchSources(
-                from: addon,
-                type: .series,
-                id: episode.id
-            )) ?? []
-
-            if let source = sources.first {
-                return source
-            }
-        }
-
-        return nil
+        await StreamSourceResolver.firstSource(
+            from: addonStore.streamAddons,
+            type: .series,
+            id: episode.id
+        )
     }
 
     private func selectAudioTrack(_ track: PlayerMediaTrack) {
