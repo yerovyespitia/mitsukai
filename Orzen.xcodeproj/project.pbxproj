@@ -61,6 +61,7 @@
 		6DAA10142E04000000B5D7A1 /* NativePlayerTrackResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA20142E04000000B5D7A1 /* NativePlayerTrackResolver.swift */; };
 		6DAA10152E04000000B5D7A1 /* StreamPlayerChromeVisibilityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA20152E04000000B5D7A1 /* StreamPlayerChromeVisibilityController.swift */; };
 		6DAA10162E04000000B5D7A1 /* StreamPlayerKeyboardControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA20162E04000000B5D7A1 /* StreamPlayerKeyboardControls.swift */; };
+		6DAA10192E10000000B5D7A1 /* StreamPlayerNextEpisodeBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA20192E10000000B5D7A1 /* StreamPlayerNextEpisodeBanner.swift */; };
 		6DBEEF022E04A00000B5D7A1 /* ProfileSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DBEEF012E04A00000B5D7A1 /* ProfileSelectionView.swift */; };
 		6DF00D022E0A00000B5D7A1 /* StreamPlayerEpisodeSidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DF00D012E0A00000B5D7A1 /* StreamPlayerEpisodeSidebar.swift */; };
 		6DF00D042E0A00000B5D7A1 /* StreamPlayerEpisodeSidebarRows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DF00D032E0A00000B5D7A1 /* StreamPlayerEpisodeSidebarRows.swift */; };
@@ -124,6 +125,7 @@
 		6DAA20142E04000000B5D7A1 /* NativePlayerTrackResolver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NativePlayerTrackResolver.swift; sourceTree = "<group>"; };
 		6DAA20152E04000000B5D7A1 /* StreamPlayerChromeVisibilityController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamPlayerChromeVisibilityController.swift; sourceTree = "<group>"; };
 		6DAA20162E04000000B5D7A1 /* StreamPlayerKeyboardControls.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamPlayerKeyboardControls.swift; sourceTree = "<group>"; };
+		6DAA20192E10000000B5D7A1 /* StreamPlayerNextEpisodeBanner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamPlayerNextEpisodeBanner.swift; sourceTree = "<group>"; };
 		6DBEEF012E04A00000B5D7A1 /* ProfileSelectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileSelectionView.swift; sourceTree = "<group>"; };
 		6DF00D012E0A00000B5D7A1 /* StreamPlayerEpisodeSidebar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamPlayerEpisodeSidebar.swift; sourceTree = "<group>"; };
 		6DF00D032E0A00000B5D7A1 /* StreamPlayerEpisodeSidebarRows.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamPlayerEpisodeSidebarRows.swift; sourceTree = "<group>"; };
@@ -206,6 +208,7 @@
 				6DF00D012E0A00000B5D7A1 /* StreamPlayerEpisodeSidebar.swift */,
 				6DF00D032E0A00000B5D7A1 /* StreamPlayerEpisodeSidebarRows.swift */,
 				6DAA20162E04000000B5D7A1 /* StreamPlayerKeyboardControls.swift */,
+				6DAA20192E10000000B5D7A1 /* StreamPlayerNextEpisodeBanner.swift */,
 				6DAA200F2E04000000B5D7A1 /* StreamPlayerView.swift */,
 				6D1AD92A2E03A9A100BFF0DE /* MPVPlayerView.swift */,
 				6D90552F2DCE548B0023DEAE /* FeaturedCarousel.swift */,
@@ -395,6 +398,7 @@
 				6D90552A2DCE3FCF0023DEAE /* CatalogData.swift in Sources */,
 				6DAA10102E04000000B5D7A1 /* StreamPlayerChrome.swift in Sources */,
 				6DAA10152E04000000B5D7A1 /* StreamPlayerChromeVisibilityController.swift in Sources */,
+				6DAA10192E10000000B5D7A1 /* StreamPlayerNextEpisodeBanner.swift in Sources */,
 				6DF00D022E0A00000B5D7A1 /* StreamPlayerEpisodeSidebar.swift in Sources */,
 				6DF00D042E0A00000B5D7A1 /* StreamPlayerEpisodeSidebarRows.swift in Sources */,
 				6DAA10162E04000000B5D7A1 /* StreamPlayerKeyboardControls.swift in Sources */,

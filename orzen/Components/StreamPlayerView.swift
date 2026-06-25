@@ -50,6 +50,7 @@ struct StreamPlayerView: View {
             Color.black.ignoresSafeArea()
             keyboardShortcuts
             playerSurface
+            nextEpisodeBanner
             playerChrome
             episodeSidebar
             startingOverlay
@@ -205,6 +206,30 @@ struct StreamPlayerView: View {
     }
 
     @ViewBuilder
+    private var nextEpisodeBanner: some View {
+        if shouldShowNextEpisodeBanner, let nextEpisode {
+            VStack {
+                Spacer(minLength: 0)
+
+                HStack {
+                    Spacer(minLength: 0)
+
+                    StreamPlayerNextEpisodeBanner(
+                        episodeTitle: nextEpisode.playbackTitle,
+                        isLoading: isLoadingNextEpisode,
+                        action: playNextEpisode
+                    )
+                    .padding(.trailing, 28)
+                    .padding(.bottom, nextEpisodeBannerBottomPadding)
+                }
+            }
+            .transition(.opacity.combined(with: .move(edge: .trailing)))
+            .zIndex(3.5)
+            .animation(.easeInOut(duration: 0.22), value: isChromePresented)
+        }
+    }
+
+    @ViewBuilder
     private var episodeSidebar: some View {
         if isEpisodeSidebarPresented, let item = request.item {
             HStack(spacing: 0) {
@@ -330,6 +355,23 @@ struct StreamPlayerView: View {
 
     private var canShowEpisodeSidebar: Bool {
         request.contentType == .series && request.item != nil
+    }
+
+    private var shouldShowNextEpisodeBanner: Bool {
+        guard nextEpisode != nil,
+              !isEpisodeSidebarPresented,
+              playbackErrorMessage == nil,
+              currentTime.isFinite,
+              duration.isFinite,
+              duration > 0 else {
+            return false
+        }
+
+        return max(duration - currentTime, 0) <= 120
+    }
+
+    private var nextEpisodeBannerBottomPadding: CGFloat {
+        isChromePresented ? 92 : 28
     }
 
     private func scheduleChromeHideIfNeeded() {
