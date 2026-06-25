@@ -83,6 +83,10 @@ final class CollectionStore: ObservableObject {
         }
     }
 
+    func item(id itemID: CatalogItem.ID, in collectionID: MediaCollection.ID) -> CatalogItem? {
+        items(in: collectionID).first { $0.id == itemID }
+    }
+
     func isFavorite(_ item: CatalogItem) -> Bool {
         favoriteItems.contains { $0.id == item.id }
     }

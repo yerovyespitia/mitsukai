@@ -3,10 +3,9 @@ import SwiftUI
 struct CollectionDetailView: View {
     // MARK: - Properties
     let collection: MediaCollection
+    let onItemSelected: (CatalogItem) -> Void
     @ObservedObject private var collectionStore = CollectionStore.shared
     @ObservedObject private var episodeWatchStore = EpisodeWatchStore.shared
-    @State private var detailItemFromContextMenu: CatalogItem?
-    @State private var isShowingContextMenuDetail = false
     @Environment(\.dismiss) private var dismiss
     private let contentHorizontalPadding: CGFloat = 16
     private let contentTopPadding: CGFloat = 8
@@ -49,12 +48,14 @@ struct CollectionDetailView: View {
                             GridItem(.adaptive(minimum: 160, maximum: 200), spacing: 16)
                         ], spacing: 16) {
                             ForEach(items) { item in
-                                NavigationLink(destination: InfoView(item: item)) {
+                                Button {
+                                    onItemSelected(item)
+                                } label: {
                                     CatalogPosterCard(
                                         item: item,
                                         showsDroppedContextAction: showsDroppedContextAction,
                                         onViewDetails: {
-                                            showContextMenuDetail(for: item)
+                                            onItemSelected(item)
                                         }
                                     )
                                 }
@@ -69,11 +70,6 @@ struct CollectionDetailView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         .navigationTitle(currentCollection.name)
-        .navigationDestination(isPresented: $isShowingContextMenuDetail) {
-            if let detailItemFromContextMenu {
-                InfoView(item: detailItemFromContextMenu)
-            }
-        }
         .escapeKeyShortcut {
             dismiss()
         }
@@ -114,11 +110,6 @@ struct CollectionDetailView: View {
 
         return "This collection does not have any saved titles."
     }
-
-    private func showContextMenuDetail(for item: CatalogItem) {
-        detailItemFromContextMenu = item
-        isShowingContextMenuDetail = true
-    }
 }
 
 #Preview {
@@ -128,6 +119,6 @@ struct CollectionDetailView: View {
             name: "Favorites",
             systemImage: "heart.fill",
             count: 12,
-        ))
+        )) { _ in }
     }
 } 

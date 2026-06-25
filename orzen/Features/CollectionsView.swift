@@ -4,13 +4,14 @@ struct CollectionsView: View {
     // MARK: - Properties
     @ObservedObject private var collectionStore = CollectionStore.shared
     @ObservedObject private var episodeWatchStore = EpisodeWatchStore.shared
+    @State private var navigationPath: [CollectionRoute] = []
     private let contentHorizontalPadding: CGFloat = 16
     private let contentTopPadding: CGFloat = 8
     private let contentSpacing: CGFloat = 12
     
     // MARK: - Body
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             ZStack(alignment: .topLeading) {
                 Color.black.ignoresSafeArea()
                 
@@ -25,7 +26,7 @@ struct CollectionsView: View {
                             GridItem(.adaptive(minimum: 160, maximum: 220), spacing: 18)
                         ], spacing: 20) {
                             ForEach(collectionStore.collections) { collection in
-                                NavigationLink(destination: CollectionDetailView(collection: collection)) {
+                                NavigationLink(value: CollectionRoute.collection(collection.id)) {
                                     CollectionCard(collection: collection)
                                 }
                                 .buttonStyle(PlainButtonStyle())
@@ -37,8 +38,45 @@ struct CollectionsView: View {
                 .padding(.top, contentTopPadding)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             }
+            .navigationDestination(for: CollectionRoute.self, destination: destination)
         }
     }
+
+    @ViewBuilder
+    private func destination(for route: CollectionRoute) -> some View {
+        switch route {
+        case let .collection(collectionID):
+            if let collection = collectionStore.collection(id: collectionID) {
+                CollectionDetailView(
+                    collection: collection,
+                    onItemSelected: { item in
+                        navigationPath.append(.item(item.id, collectionID: collection.id))
+                    }
+                )
+            } else {
+                DetailUnavailableView(
+                    systemImage: "square.stack",
+                    title: "Collection unavailable",
+                    message: "This collection could not be found."
+                )
+            }
+        case let .item(itemID, collectionID):
+            if let item = collectionStore.item(id: itemID, in: collectionID) {
+                InfoView(item: item)
+            } else {
+                DetailUnavailableView(
+                    systemImage: "film",
+                    title: "Title unavailable",
+                    message: "This title is no longer in the collection."
+                )
+            }
+        }
+    }
+}
+
+private enum CollectionRoute: Hashable {
+    case collection(MediaCollection.ID)
+    case item(CatalogItem.ID, collectionID: MediaCollection.ID)
 }
 
 // MARK: - Collection Card View
