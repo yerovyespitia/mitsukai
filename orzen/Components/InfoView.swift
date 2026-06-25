@@ -135,8 +135,20 @@ struct InfoView: View {
                             .id(episode.id)
                             .contextMenu {
                                 Button {
-                                    episodeWatchStore.toggleWatched(episode, in: item, episodes: viewModel.detail.episodes)
+                                    let didMarkWatched = episodeWatchStore.toggleWatched(
+                                        episode,
+                                        in: item,
+                                        episodes: viewModel.detail.episodes
+                                    )
                                     viewModel.syncSeriesCollectionState()
+
+                                    guard didMarkWatched else { return }
+                                    Task {
+                                        await playbackProgressStore.advanceWatchingProgressIfNeeded(
+                                            afterMarkingWatched: episode,
+                                            in: item
+                                        )
+                                    }
                                 } label: {
                                     Label(
                                         episodeWatchStore.isWatched(episode) ? "Remove from Watched" : "Mark as Watched",

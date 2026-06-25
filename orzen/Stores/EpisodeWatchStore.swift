@@ -72,16 +72,22 @@ final class EpisodeWatchStore: ObservableObject {
         return progress.episodes[nextIndex]
     }
 
-    func toggleWatched(_ episode: CatalogEpisode) {
+    @discardableResult
+    func toggleWatched(_ episode: CatalogEpisode) -> Bool {
+        let wasWatched = watchedEpisodeIDs.contains(episode.id)
         toggleEpisodeID(episode.id)
         save()
+        return !wasWatched
     }
 
-    func toggleWatched(_ episode: CatalogEpisode, in item: CatalogItem, episodes: [CatalogEpisode]) {
+    @discardableResult
+    func toggleWatched(_ episode: CatalogEpisode, in item: CatalogItem, episodes: [CatalogEpisode]) -> Bool {
+        let wasWatched = watchedEpisodeIDs.contains(episode.id)
         registerSeries(item, episodes: episodes)
         toggleEpisodeID(episode.id)
         updateSeries(itemID: item.id, episodeIDs: [episode.id])
         save()
+        return !wasWatched
     }
 
     func markWatched(_ episode: CatalogEpisode, in item: CatalogItem) {

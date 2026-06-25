@@ -208,6 +208,51 @@ final class PlaybackProgressStore: ObservableObject {
         save()
     }
 
+    func advanceWatchingProgressIfNeeded(
+        afterMarkingWatched episode: CatalogEpisode,
+        in item: CatalogItem,
+        trackSelections: PlaybackTrackSelections? = nil
+    ) async {
+        guard item.cinemetaType == .series,
+              let currentEntry = entry(for: item),
+              currentEntry.contentType == .series,
+              currentEntry.episode?.id == episode.id else {
+            return
+        }
+
+        clearProgress(contentID: episode.id, contentType: .series)
+
+        guard let nextEpisode = EpisodeWatchStore.shared.nextUnwatchedEpisode(for: item),
+              !EpisodeWatchStore.shared.isStoredSeriesFullyWatched(item) else {
+            return
+        }
+
+        let pendingTrackSelections = trackSelections ?? currentEntry.trackSelections
+        savePendingProgress(
+            for: item,
+            episode: nextEpisode,
+            source: currentEntry.source,
+            subtitle: item.title,
+            trackSelections: pendingTrackSelections
+        )
+
+        guard let refreshedSource = await StreamSourceResolver.firstSource(
+            from: LocalAddonStore.shared.streamAddons,
+            type: .series,
+            id: nextEpisode.id
+        ) else {
+            return
+        }
+
+        savePendingProgress(
+            for: item,
+            episode: nextEpisode,
+            source: refreshedSource,
+            subtitle: item.title,
+            trackSelections: pendingTrackSelections
+        )
+    }
+
     func progressFraction(for item: CatalogItem) -> Double {
         entry(for: item)?.progressFraction ?? 0
     }

@@ -12,6 +12,7 @@ struct StreamPlayerEpisodeSidebar: View {
     let onClose: () -> Void
 
     @ObservedObject private var episodeWatchStore = EpisodeWatchStore.shared
+    @ObservedObject private var playbackProgressStore = PlaybackProgressStore.shared
     @StateObject private var viewModel: InfoViewModel
     @State private var didSelectInitialEpisode = false
     @State private var hoveredChromeButton: SidebarChromeButton?
@@ -229,8 +230,21 @@ struct StreamPlayerEpisodeSidebar: View {
         .buttonStyle(.plain)
         .contextMenu {
             Button {
-                episodeWatchStore.toggleWatched(episode, in: item, episodes: viewModel.detail.episodes)
+                let didMarkWatched = episodeWatchStore.toggleWatched(
+                    episode,
+                    in: item,
+                    episodes: viewModel.detail.episodes
+                )
                 viewModel.syncSeriesCollectionState()
+
+                guard didMarkWatched else { return }
+                Task {
+                    await playbackProgressStore.advanceWatchingProgressIfNeeded(
+                        afterMarkingWatched: episode,
+                        in: item,
+                        trackSelections: currentTrackSelections
+                    )
+                }
             } label: {
                 Label(
                     episodeWatchStore.isWatched(episode) ? "Remove from Watched" : "Mark as Watched",

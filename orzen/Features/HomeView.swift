@@ -91,6 +91,24 @@ struct HomeView: View {
             }
         }
 
+        if entry.contentType == .series,
+           let refreshedSource = await StreamSourceResolver.firstSource(
+            from: addonStore.streamAddons,
+            type: .series,
+            id: entry.contentID
+           ) {
+            return StreamPlaybackRequest(
+                source: refreshedSource,
+                title: storedRequest.title,
+                subtitle: storedRequest.subtitle,
+                contentID: storedRequest.contentID,
+                contentType: storedRequest.contentType,
+                item: storedRequest.item,
+                episode: storedRequest.episode,
+                initialTrackSelections: storedRequest.initialTrackSelections
+            )
+        }
+
         return storedRequest
     }
 }
