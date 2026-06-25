@@ -140,22 +140,36 @@ struct StreamPlayerEpisodeSidebar: View {
         return ZStack(alignment: .leading) {
             Color.clear
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
-                ForEach(viewModel.availableSeasons, id: \.self) { season in
-                        SeasonButton(
-                            season: season,
-                            isSelected: viewModel.selectedSeason == season,
-                            action: {
-                                viewModel.selectedSeason = season
-                            }
-                        )
+            ScrollViewReader { scrollProxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 10) {
+                        ForEach(viewModel.availableSeasons, id: \.self) { season in
+                            SeasonButton(
+                                season: season,
+                                isSelected: viewModel.selectedSeason == season,
+                                action: {
+                                    withAnimation(.easeInOut(duration: 0.18)) {
+                                        viewModel.selectedSeason = season
+                                    }
+                                }
+                            )
+                            .id(season)
+                        }
                     }
+                    .padding(.vertical, 2)
+                    .padding(.horizontal, 1)
                 }
-                .padding(.vertical, 2)
-                .padding(.horizontal, 1)
+                .frame(width: viewportWidth, height: 38, alignment: .leading)
+                .onChange(of: viewModel.selectedSeason) { _, season in
+                    scrollToSelectedSeasonButton(season, with: scrollProxy)
+                }
+                .onChange(of: viewModel.availableSeasons) { _, _ in
+                    scrollToSelectedSeasonButton(viewModel.selectedSeason, with: scrollProxy)
+                }
+                .onAppear {
+                    scrollToSelectedSeasonButton(viewModel.selectedSeason, with: scrollProxy)
+                }
             }
-            .frame(width: viewportWidth, height: 38, alignment: .leading)
         }
         .frame(width: viewportWidth, height: 38, alignment: .leading)
         .compositingGroup()
@@ -176,6 +190,22 @@ struct StreamPlayerEpisodeSidebar: View {
             .onChange(of: viewModel.selectedEpisodeID) { _, episodeID in
                 guard let episodeID else { return }
                 scrollProxy.scrollTo(episodeID, anchor: .center)
+            }
+            .onChange(of: viewModel.selectedSeason) { _, _ in
+                scrollToCurrentEpisodeIfNeeded(with: scrollProxy)
+            }
+            .onChange(of: viewModel.selectedSeasonEpisodes.map(\.id)) { _, _ in
+                scrollToCurrentEpisodeIfNeeded(with: scrollProxy)
+            }
+            .onChange(of: viewModel.hasLoadedDetail) { _, hasLoadedDetail in
+                guard hasLoadedDetail else { return }
+                scrollToCurrentEpisode(with: scrollProxy)
+            }
+            .onChange(of: currentEpisodeID) { _, _ in
+                scrollToCurrentEpisode(with: scrollProxy)
+            }
+            .onAppear {
+                scrollToCurrentEpisode(with: scrollProxy)
             }
         }
     }
@@ -341,6 +371,42 @@ struct StreamPlayerEpisodeSidebar: View {
 
         didSelectInitialEpisode = true
         viewModel.selectedSeason = episode.season ?? 1
+    }
+
+    private func scrollToCurrentEpisode(with scrollProxy: ScrollViewProxy) {
+        guard let currentEpisode = currentEpisode else { return }
+
+        Task { @MainActor in
+            viewModel.selectedSeason = currentEpisode.season ?? 1
+            try? await Task.sleep(for: .milliseconds(220))
+            withAnimation(.easeInOut(duration: 0.32)) {
+                scrollProxy.scrollTo(currentEpisode.id, anchor: .top)
+            }
+        }
+    }
+
+    private func scrollToCurrentEpisodeIfNeeded(with scrollProxy: ScrollViewProxy) {
+        guard currentEpisode?.season == viewModel.selectedSeason else { return }
+        scrollToCurrentEpisode(with: scrollProxy)
+    }
+
+    private var currentEpisode: CatalogEpisode? {
+        guard let currentEpisodeID else { return nil }
+        return viewModel.detail.episodes.first { $0.id == currentEpisodeID }
+    }
+
+    private func scrollToSelectedSeasonButton(
+        _ season: Int,
+        with scrollProxy: ScrollViewProxy
+    ) {
+        guard viewModel.availableSeasons.contains(season) else { return }
+
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(80))
+            withAnimation(.easeInOut(duration: 0.18)) {
+                scrollProxy.scrollTo(season, anchor: .leading)
+            }
+        }
     }
 
     private func showEpisodes() {

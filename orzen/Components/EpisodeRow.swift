@@ -4,6 +4,7 @@ struct EpisodeRow: View {
     let episode: CatalogEpisode
     var isSelected = false
     var isWatched = false
+    var isCurrent = false
 
     var body: some View {
         HStack(alignment: .top, spacing: 16) {
@@ -15,8 +16,8 @@ struct EpisodeRow: View {
                         .stroke(Color.white.opacity(0.08), lineWidth: 1)
                 }
                 .overlay(alignment: .topLeading) {
-                    if isWatched {
-                        watchedBadge
+                    if isCurrent || isWatched {
+                        statusBadges
                             .padding(.top, 12)
                             .padding(.leading, 12)
                     }
@@ -64,14 +65,25 @@ struct EpisodeRow: View {
         }
     }
 
-    private var watchedBadge: some View {
+    private var statusBadges: some View {
+        HStack(spacing: 6) {
+            if isCurrent {
+                badge(title: "Now", systemImage: "play.fill")
+            }
+
+            if isWatched {
+                badge(title: "Watched", systemImage: "eye.fill")
+            }
+        }
+    }
+
+    private func badge(title: String, systemImage: String) -> some View {
         HStack(spacing: 5) {
-            Image(systemName: "eye.fill")
+            Image(systemName: systemImage)
                 .font(.system(size: 11, weight: .semibold))
 
-            Text("Watched")
-                .font(.caption2)
-                .fontWeight(.semibold)
+            Text(title)
+                .font(.caption2.weight(.semibold))
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 5)

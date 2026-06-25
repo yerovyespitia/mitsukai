@@ -40,11 +40,11 @@ struct StreamPlayerEpisodeSidebarRow: View {
                 .padding(.top, 3)
         }
         .padding(10)
-        .background(rowBackground, in: rowShape)
-        .modifier(SidebarGlassButtonModifier(shape: rowShape))
-        .overlay {
-            rowShape.stroke(rowStroke, lineWidth: 1)
-        }
+        .sidebarEpisodeRowBackground(
+            isSelected: isSelected,
+            isHovered: isHovered,
+            shape: rowShape
+        )
         .contentShape(rowShape)
         .onHover { hovering in
             isHovered = hovering
@@ -103,23 +103,7 @@ struct StreamPlayerEpisodeSidebarRow: View {
     }
 
     private var rowShape: RoundedRectangle {
-        RoundedRectangle(cornerRadius: 8, style: .continuous)
-    }
-
-    private var rowBackground: Color {
-        if isSelected {
-            return Color.white.opacity(isHovered ? 0.16 : 0.12)
-        }
-
-        return Color.white.opacity(isHovered ? 0.09 : 0.055)
-    }
-
-    private var rowStroke: Color {
-        if isSelected {
-            return Color.white.opacity(isHovered ? 0.22 : 0.18)
-        }
-
-        return Color.white.opacity(isHovered ? 0.11 : 0.05)
+        RoundedRectangle(cornerRadius: 14, style: .continuous)
     }
 }
 
@@ -170,7 +154,7 @@ struct StreamPlayerEpisodeSidebarSourceRow: View {
     }
 
     private var rowShape: RoundedRectangle {
-        RoundedRectangle(cornerRadius: 8, style: .continuous)
+        RoundedRectangle(cornerRadius: 14, style: .continuous)
     }
 
     private var rowBackground: Color {
@@ -187,5 +171,33 @@ struct StreamPlayerEpisodeSidebarSourceRow: View {
         }
 
         return Color.white.opacity(isHovered ? 0.11 : 0.05)
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func sidebarEpisodeRowBackground(
+        isSelected: Bool,
+        isHovered: Bool,
+        shape: RoundedRectangle
+    ) -> some View {
+        let baseTint = isSelected ? 0.05 : 0.02
+        let hoverTint = isSelected ? 0.08 : 0.045
+        let tint = isHovered ? hoverTint : baseTint
+        let strokeOpacity = isSelected ? 0.18 : (isHovered ? 0.08 : 0.04)
+
+        if #available(macOS 26, *) {
+            self
+                .glassEffect(.regular.tint(Color.white.opacity(tint)), in: shape)
+                .overlay {
+                    shape.stroke(Color.white.opacity(strokeOpacity), lineWidth: 1)
+                }
+        } else {
+            self
+                .background(Color.white.opacity(isSelected ? 0.1 : (isHovered ? 0.065 : 0.045)), in: shape)
+                .overlay {
+                    shape.stroke(Color.white.opacity(strokeOpacity), lineWidth: 1)
+                }
+        }
     }
 }

@@ -3,6 +3,8 @@ import SwiftUI
 struct InfoView: View {
     let item: CatalogItem
     @ObservedObject private var episodeWatchStore = EpisodeWatchStore.shared
+    @ObservedObject private var playbackProgressStore = PlaybackProgressStore.shared
+    @ObservedObject private var playbackStore = StreamPlaybackStore.shared
     @StateObject private var viewModel: InfoViewModel
     @State private var isSourcesBackHovered = false
     @Environment(\.dismiss) private var dismiss
@@ -41,6 +43,19 @@ struct InfoView: View {
                 }
                 .onChange(of: viewModel.pendingEpisodeScrollID) { _, episodeID in
                     scrollToPendingEpisode(episodeID, with: scrollProxy)
+                }
+                .onChange(of: viewModel.selectedSeason) { _, _ in
+                    scrollToCurrentWatchingEpisodeIfNeeded(with: scrollProxy)
+                }
+                .onChange(of: viewModel.selectedSeasonEpisodes.map(\.id)) { _, _ in
+                    scrollToCurrentWatchingEpisodeIfNeeded(with: scrollProxy)
+                }
+                .onChange(of: viewModel.hasLoadedDetail) { _, hasLoadedDetail in
+                    guard hasLoadedDetail else { return }
+                    scrollToCurrentWatchingEpisode(with: scrollProxy)
+                }
+                .onChange(of: currentWatchingEpisodeID) { _, _ in
+                    scrollToCurrentWatchingEpisode(with: scrollProxy)
                 }
             }
         }
@@ -112,7 +127,8 @@ struct InfoView: View {
                                 EpisodeRow(
                                     episode: episode,
                                     isSelected: viewModel.selectedEpisodeID == episode.id,
-                                    isWatched: episodeWatchStore.isWatched(episode)
+                                    isWatched: episodeWatchStore.isWatched(episode),
+                                    isCurrent: currentWatchingEpisodeID == episode.id
                                 )
                             }
                             .buttonStyle(.plain)
@@ -169,6 +185,19 @@ struct InfoView: View {
             sourcesList
         }
         .padding(.horizontal, contentHorizontalPadding)
+    }
+
+    private var currentWatchingEpisodeID: CatalogEpisode.ID? {
+        if playbackStore.request?.item?.id == item.id {
+            return playbackStore.request?.episode?.id
+        }
+
+        return playbackProgressStore.entry(for: item)?.episode?.id
+    }
+
+    private var currentWatchingEpisode: CatalogEpisode? {
+        guard let currentWatchingEpisodeID else { return nil }
+        return viewModel.detail.episodes.first { $0.id == currentWatchingEpisodeID }
     }
 
     @ViewBuilder
@@ -271,19 +300,31 @@ struct InfoView: View {
     }
 
     private var seasonSelector: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
-                ForEach(viewModel.availableSeasons, id: \.self) { season in
-                    SeasonButton(
-                        season: season,
-                        isSelected: viewModel.selectedSeason == season,
-                        action: {
-                            withAnimation(.easeInOut(duration: 0.18)) {
-                                viewModel.selectedSeason = season
+        ScrollViewReader { scrollProxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    ForEach(viewModel.availableSeasons, id: \.self) { season in
+                        SeasonButton(
+                            season: season,
+                            isSelected: viewModel.selectedSeason == season,
+                            action: {
+                                withAnimation(.easeInOut(duration: 0.18)) {
+                                    viewModel.selectedSeason = season
+                                }
                             }
-                        }
-                    )
+                        )
+                        .id(season)
+                    }
                 }
+            }
+            .onChange(of: viewModel.selectedSeason) { _, season in
+                scrollToSelectedSeasonButton(season, with: scrollProxy)
+            }
+            .onChange(of: viewModel.availableSeasons) { _, _ in
+                scrollToSelectedSeasonButton(viewModel.selectedSeason, with: scrollProxy)
+            }
+            .onAppear {
+                scrollToSelectedSeasonButton(viewModel.selectedSeason, with: scrollProxy)
             }
         }
     }
@@ -300,6 +341,37 @@ struct InfoView: View {
                 scrollProxy.scrollTo(episodeID, anchor: .top)
             }
             viewModel.clearPendingEpisodeScroll()
+        }
+    }
+
+    private func scrollToCurrentWatchingEpisode(with scrollProxy: ScrollViewProxy) {
+        guard let currentWatchingEpisode else { return }
+
+        Task { @MainActor in
+            viewModel.selectedSeason = currentWatchingEpisode.season ?? 1
+            try? await Task.sleep(for: .milliseconds(220))
+            withAnimation(.easeInOut(duration: 0.38)) {
+                scrollProxy.scrollTo(currentWatchingEpisode.id, anchor: .top)
+            }
+        }
+    }
+
+    private func scrollToCurrentWatchingEpisodeIfNeeded(with scrollProxy: ScrollViewProxy) {
+        guard currentWatchingEpisode?.season == viewModel.selectedSeason else { return }
+        scrollToCurrentWatchingEpisode(with: scrollProxy)
+    }
+
+    private func scrollToSelectedSeasonButton(
+        _ season: Int,
+        with scrollProxy: ScrollViewProxy
+    ) {
+        guard viewModel.availableSeasons.contains(season) else { return }
+
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(80))
+            withAnimation(.easeInOut(duration: 0.18)) {
+                scrollProxy.scrollTo(season, anchor: .leading)
+            }
         }
     }
 
