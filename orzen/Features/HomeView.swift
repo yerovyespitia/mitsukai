@@ -4,6 +4,7 @@ struct HomeView: View {
     @ObservedObject private var catalogStore = HomeCatalogStore.shared
     @ObservedObject private var playbackStore = StreamPlaybackStore.shared
     @ObservedObject private var progressStore = PlaybackProgressStore.shared
+    @ObservedObject private var collectionStore = CollectionStore.shared
     @ObservedObject private var addonStore = LocalAddonStore.shared
 
     var body: some View {
@@ -28,6 +29,13 @@ struct HomeView: View {
                                 cardStyle: .watching,
                                 showsDroppedContextAction: true,
                                 onItemSelected: playSavedProgress
+                            )
+                        }
+
+                        if !collectionStore.planToWatchItems.isEmpty {
+                            CatalogSectionView(
+                                title: "Watchlist",
+                                items: collectionStore.planToWatchItems
                             )
                         }
 
