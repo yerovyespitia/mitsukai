@@ -44,6 +44,25 @@ These guidelines apply to all contributors and coding agents working in this rep
 - Use `@State`, `@Binding`, `@Observable`, `@Environment`, and related property wrappers only where ownership is clear.
 - Keep reusable domain logic outside SwiftUI views so it can be tested without rendering UI.
 
+## Design
+
+- Preserve Orzen's dark, cinematic macOS style: black base surfaces, white text, subtle translucent layers, and artwork-led screens.
+- Use `OrzenLayout` for shared measurements. Keep the sidebar at `230` points by default, content horizontal insets at `24`, and the home banner height at `500`.
+- Compose the root shell with `NavigationSplitView`, a `.sidebar` styled `List`, and plain sidebar row buttons. Sidebar rows use SF Symbols, 10-point icon/text spacing, 8-point horizontal padding, 10-point vertical padding, and an 8-point rounded white selection fill at `0.1` opacity.
+- Keep primary content on black backgrounds with `Color.black.ignoresSafeArea()`. Use horizontal scrolling shelves for home sections and adaptive grids for catalog screens.
+- Section headings use bold white headline text with leading/trailing content insets. Horizontal shelf cards use 14-point item spacing, 2-point vertical shelf padding, and 22-point bottom section padding.
+- Reuse existing card components before creating new ones. Poster cards keep a 2:3 aspect ratio, 8-point continuous corner radius, a white border at `0.08` opacity, and reveal title metadata on hover over a black `0.4` overlay.
+- Watching/backdrop cards use 252 by 142 sizing, 8-point continuous corners, a bottom black gradient, 12-point internal padding, a 6-point capsule progress bar, and a slight hover scale of about `1.015`.
+- Use subtle hover feedback instead of loud color shifts. Common hover fills move from white `0.08` opacity to about `0.16`, strokes from about `0.06` to `0.14`, and animations should stay near `easeInOut` with `0.12` to `0.2` seconds.
+- Buttons should usually be `.buttonStyle(.plain)` with SF Symbol icons, `.help(...)`, and accessibility labels. Circular icon buttons use 32 to 34 point frames for regular actions, 28 point frames for compact player controls, 54/76 point frames for center transport controls, and `Circle()` hit targets.
+- Selected filter pills use a white capsule background with dark text. Unselected filters use translucent white capsule fills, 14 to 16 point horizontal padding, 7 to 8 point vertical padding, and a subtle white stroke.
+- For macOS 26 and newer, prefer `GlassEffectContainer` and `.glassEffect(.regular.interactive(), in: Circle())` or capsule glass where the existing UI already does this. Always provide a non-glass fallback that matches the same opacity, radius, and spacing.
+- Feature rows and settings panels use restrained translucent containers: white fills around `0.06` to `0.08`, 18-point rounded rectangles for larger rows/panels, 20 to 24 point padding, and secondary text at white opacity around `0.58` to `0.7`.
+- Detail hero views should stay artwork-forward: large poster at 220 by 320 with 16-point corners, 32-point spacing to text, 40-point bold title, white metadata pills, and top padding around `116` when over backdrop art.
+- Player chrome overlays use full-screen gradients rather than boxed panels. Keep 24-point horizontal padding, 22-point top padding, 18-point bottom padding, white controls, compact monospaced time labels, and hover-revealed circular transport controls.
+- Prefer established symbols and components (`FilterButton`, `SourceFilterPicker`, `PlayerIconButton`, `CatalogPosterCard`, `CatalogSectionView`, addon action buttons) over one-off visual treatments.
+- Avoid introducing bright brand colors, heavy borders, nested cards, large rounded marketing sections, or decorative gradients that compete with poster/backdrop artwork.
+
 ## Architecture
 
 - Separate UI, business rules, data access, formatting, and platform integration into different files.
