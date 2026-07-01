@@ -6,6 +6,7 @@ struct FeaturedCarousel: View {
     @State private var hoveredButtonImage: String?
     
     private let carouselAnimation = Animation.smooth(duration: 0.58, extraBounce: 0)
+    private let swipeThreshold: CGFloat = 48
     private var metrics: OrzenLayout.Metrics {
         OrzenLayout.current
     }
@@ -41,6 +42,11 @@ struct FeaturedCarousel: View {
                         .zIndex(2)
                 }
             }
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 24, coordinateSpace: .local)
+                    .onEnded(handleSwipe)
+            )
             .onAppear(perform: selectInitialItemIfNeeded)
             .onChange(of: items.map(\.id)) { _, ids in
                 guard selectedItemID.map({ ids.contains($0) }) != true else { return }
@@ -96,6 +102,18 @@ struct FeaturedCarousel: View {
         withAnimation(carouselAnimation) {
             selectedItemID = nextID
         }
+    }
+
+    private func handleSwipe(_ value: DragGesture.Value) {
+        let horizontalMovement = value.translation.width
+        let verticalMovement = value.translation.height
+
+        guard abs(horizontalMovement) > abs(verticalMovement),
+              abs(horizontalMovement) >= swipeThreshold else {
+            return
+        }
+
+        moveSelection(by: horizontalMovement < 0 ? 1 : -1)
     }
     
     @ViewBuilder

@@ -33,6 +33,7 @@ struct AddonsView: View {
         }
         #if os(iOS)
         .toolbar(ownsNavigationStack ? .hidden : .visible, for: .navigationBar)
+        .interactivePopGestureEnabled()
         #endif
     }
 

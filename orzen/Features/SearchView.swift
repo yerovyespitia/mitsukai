@@ -26,6 +26,7 @@ struct SearchView: View {
         }
         #if os(iOS)
         .toolbar(.hidden, for: .navigationBar)
+        .interactivePopGestureEnabled()
         #endif
         .task {
             await searchStore.prepareIndexIfNeeded()

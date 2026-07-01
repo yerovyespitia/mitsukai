@@ -42,6 +42,7 @@ struct CinemetaCatalogView: View {
         }
         #if os(iOS)
         .toolbar(.hidden, for: .navigationBar)
+        .interactivePopGestureEnabled()
         #endif
         .task(id: catalogStore.selectedFilter) {
             await catalogStore.loadCatalog()

@@ -66,6 +66,7 @@ struct InfoView: View {
         .background(Color.black)
         #if os(iOS)
         .navigationBarBackButtonHidden(true)
+        .edgeSwipeBackGesture()
         #endif
         #if os(macOS)
         .toolbarBackground(.visible, for: .windowToolbar)

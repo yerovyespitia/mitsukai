@@ -82,6 +82,7 @@ private struct iPhoneMoreView: View {
             }
             .navigationTitle("More")
             .navigationBarTitleDisplayMode(.inline)
+            .interactivePopGestureEnabled()
         }
     }
 

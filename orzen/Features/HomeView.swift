@@ -54,6 +54,7 @@ struct HomeView: View {
         }
         #if os(iOS)
         .toolbar(.hidden, for: .navigationBar)
+        .interactivePopGestureEnabled()
         #endif
         .task {
             catalogStore.loadIfNeeded()

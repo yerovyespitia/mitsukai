@@ -76,6 +76,7 @@ struct CollectionDetailView: View {
         .navigationTitle(currentCollection.name)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        .edgeSwipeBackGesture()
         #endif
         .escapeKeyShortcut {
             dismiss()

@@ -10,6 +10,7 @@
 		6D1AD9292DD7BAD200BFF0DE /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D1AD9282DD7BAD200BFF0DE /* InfoView.swift */; };
 		6D1AD92B2E03A9A100BFF0DE /* MPVPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D1AD92A2E03A9A100BFF0DE /* MPVPlayerView.swift */; };
 		6D1AD92E2E03D33A00BFF0DE /* MPVOpenGLBridge.c in Sources */ = {isa = PBXBuildFile; fileRef = 6D1AD92D2E03D33A00BFF0DE /* MPVOpenGLBridge.c */; };
+		6D1AD9322E15B00000BFF0DE /* InteractivePopGestureEnabler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D1AD9312E15B00000BFF0DE /* InteractivePopGestureEnabler.swift */; };
 		6D2872012E034A0000B5D7A1 /* LocalAddonStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D2872002E034A0000B5D7A1 /* LocalAddonStore.swift */; };
 		6D2872032E034A0100B5D7A1 /* StremioStreamClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D2872022E034A0100B5D7A1 /* StremioStreamClient.swift */; };
 		6D2872072E034A0200B5D7A1 /* StremioSubtitleClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D2872062E034A0200B5D7A1 /* StremioSubtitleClient.swift */; };
@@ -78,6 +79,7 @@
 		6D1AD92A2E03A9A100BFF0DE /* MPVPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MPVPlayerView.swift; sourceTree = "<group>"; };
 		6D1AD92C2E03D33A00BFF0DE /* Orzen-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Orzen-Bridging-Header.h"; sourceTree = "<group>"; };
 		6D1AD92D2E03D33A00BFF0DE /* MPVOpenGLBridge.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MPVOpenGLBridge.c; sourceTree = "<group>"; };
+		6D1AD9312E15B00000BFF0DE /* InteractivePopGestureEnabler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InteractivePopGestureEnabler.swift; sourceTree = "<group>"; };
 		6D2872002E034A0000B5D7A1 /* LocalAddonStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalAddonStore.swift; sourceTree = "<group>"; };
 		6D2872022E034A0100B5D7A1 /* StremioStreamClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StremioStreamClient.swift; sourceTree = "<group>"; };
 		6D2872062E034A0200B5D7A1 /* StremioSubtitleClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StremioSubtitleClient.swift; sourceTree = "<group>"; };
@@ -158,6 +160,7 @@
 			isa = PBXGroup;
 			children = (
 				6D1AD92D2E03D33A00BFF0DE /* MPVOpenGLBridge.c */,
+				6D1AD9312E15B00000BFF0DE /* InteractivePopGestureEnabler.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -400,6 +403,7 @@
 				6DC0DE092E09000000B5D7A1 /* MPVPlaybackController.swift in Sources */,
 				6DAA10122E04000000B5D7A1 /* PlaybackKeyboardShortcutView.swift in Sources */,
 				6D1AD92E2E03D33A00BFF0DE /* MPVOpenGLBridge.c in Sources */,
+				6D1AD9322E15B00000BFF0DE /* InteractivePopGestureEnabler.swift in Sources */,
 				6DAA100D2E04000000B5D7A1 /* StreamPlaybackStore.swift in Sources */,
 				6D9055192DCE3D490023DEAE /* OrzenApp.swift in Sources */,
 				6DAA10072E04000000B5D7A1 /* CinemetaCatalogPresets.swift in Sources */,

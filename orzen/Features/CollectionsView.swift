@@ -38,7 +38,15 @@ struct CollectionsView: View {
                         spacing: OrzenLayout.current.gridVerticalSpacing
                     ) {
                         ForEach(collectionStore.collections) { collection in
-                            NavigationLink(value: CollectionRoute.collection(collection.id)) {
+                            NavigationLink {
+                                CollectionDetailView(
+                                    collection: collection,
+                                    usesValueNavigation: true,
+                                    onItemSelected: { item in
+                                        navigationPath.append(.item(item.id, collectionID: collection.id))
+                                    }
+                                )
+                            } label: {
                                 CollectionCard(collection: collection)
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -53,28 +61,13 @@ struct CollectionsView: View {
         .navigationDestination(for: CollectionRoute.self, destination: destination)
         #if os(iOS)
         .toolbar(ownsNavigationStack ? .hidden : .visible, for: .navigationBar)
+        .interactivePopGestureEnabled()
         #endif
     }
 
     @ViewBuilder
     private func destination(for route: CollectionRoute) -> some View {
         switch route {
-        case let .collection(collectionID):
-            if let collection = collectionStore.collection(id: collectionID) {
-                CollectionDetailView(
-                    collection: collection,
-                    usesValueNavigation: true,
-                    onItemSelected: { item in
-                        navigationPath.append(.item(item.id, collectionID: collection.id))
-                    }
-                )
-            } else {
-                DetailUnavailableView(
-                    systemImage: "square.stack",
-                    title: "Collection unavailable",
-                    message: "This collection could not be found."
-                )
-            }
         case let .item(itemID, collectionID):
             if let item = collectionStore.item(id: itemID, in: collectionID) {
                 InfoView(item: item)
@@ -98,7 +91,6 @@ struct CollectionsView: View {
 }
 
 enum CollectionRoute: Hashable {
-    case collection(MediaCollection.ID)
     case item(CatalogItem.ID, collectionID: MediaCollection.ID)
 }
 
