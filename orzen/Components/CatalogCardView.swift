@@ -1,5 +1,15 @@
 import SwiftUI
+#if os(macOS)
 import AppKit
+#else
+import UIKit
+#endif
+
+#if os(macOS)
+private typealias OrzenPlatformImage = NSImage
+#else
+private typealias OrzenPlatformImage = UIImage
+#endif
 
 struct CachedRemoteImage<Content: View, Placeholder: View>: View {
     let url: URL
@@ -10,8 +20,8 @@ struct CachedRemoteImage<Content: View, Placeholder: View>: View {
     
     var body: some View {
         Group {
-            if let nsImage = loader.image {
-                content(Image(nsImage: nsImage))
+            if let image = loader.image {
+                content(Image(orzenPlatformImage: image))
             } else {
                 placeholder()
             }
@@ -27,14 +37,14 @@ struct CachedRemoteImage<Content: View, Placeholder: View>: View {
 
 @MainActor
 private final class CachedRemoteImageLoader: ObservableObject {
-    private static let cache: NSCache<NSURL, NSImage> = {
-        let cache = NSCache<NSURL, NSImage>()
+    private static let cache: NSCache<NSURL, OrzenPlatformImage> = {
+        let cache = NSCache<NSURL, OrzenPlatformImage>()
         cache.countLimit = 220
         cache.totalCostLimit = 120 * 1024 * 1024
         return cache
     }()
     
-    @Published private(set) var image: NSImage?
+    @Published private(set) var image: OrzenPlatformImage?
     
     private var currentURL: URL?
     private var loadTask: Task<Void, Never>?
@@ -65,7 +75,7 @@ private final class CachedRemoteImageLoader: ObservableObject {
                 guard !Task.isCancelled,
                       let httpResponse = response as? HTTPURLResponse,
                       (200..<300).contains(httpResponse.statusCode),
-                      let loadedImage = NSImage(data: data) else {
+                      let loadedImage = OrzenPlatformImage(data: data) else {
                     return
                 }
                 
@@ -83,6 +93,16 @@ private final class CachedRemoteImageLoader: ObservableObject {
     
     deinit {
         loadTask?.cancel()
+    }
+}
+
+private extension Image {
+    init(orzenPlatformImage image: OrzenPlatformImage) {
+        #if os(macOS)
+        self.init(nsImage: image)
+        #else
+        self.init(uiImage: image)
+        #endif
     }
 }
 

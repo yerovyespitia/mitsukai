@@ -4,16 +4,16 @@ struct SourceRow: View {
     let source: StreamSource
 
     var body: some View {
-        HStack(alignment: .top, spacing: 16) {
+        HStack(alignment: .top, spacing: rowSpacing) {
             ZStack {
                 SourceRowStyle.cardShape
                     .fill(Color.white.opacity(0.1))
 
                 Image(systemName: source.playbackURL == nil ? "exclamationmark.triangle.fill" : "play.circle.fill")
-                    .font(.system(size: 28, weight: .semibold))
+                    .font(.system(size: iconSize, weight: .semibold))
                     .foregroundColor(.white.opacity(0.72))
             }
-            .frame(width: 190, height: 123)
+            .frame(width: artworkWidth, height: artworkHeight)
             .overlay {
                 SourceRowStyle.cardShape
                     .stroke(Color.white.opacity(0.08), lineWidth: 1)
@@ -21,34 +21,120 @@ struct SourceRow: View {
 
             VStack(alignment: .leading, spacing: 8) {
                 Text(source.title)
-                    .font(.headline)
+                    .font(titleFont)
                     .foregroundColor(.white)
                     .lineLimit(2)
 
                 if !source.metadata.isEmpty {
                     Text(source.metadata.joined(separator: " • "))
-                        .font(.caption)
+                        .font(metadataFont)
                         .foregroundColor(.white.opacity(0.62))
                         .lineLimit(1)
                 }
 
                 Text(source.description)
-                    .font(.callout)
+                    .font(descriptionFont)
                     .foregroundColor(.white.opacity(0.78))
-                    .lineLimit(3)
+                    .lineLimit(descriptionLineLimit)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
             Spacer(minLength: 0)
         }
-        .padding(12)
-        .frame(minHeight: 147, alignment: .top)
+        .padding(rowPadding)
+        .frame(minHeight: minimumHeight, alignment: .top)
         .sourceRowBackground()
+    }
+
+    private var artworkWidth: CGFloat {
+        #if os(iOS)
+        return 58
+        #else
+        return 190
+        #endif
+    }
+
+    private var artworkHeight: CGFloat {
+        #if os(iOS)
+        return 58
+        #else
+        return 123
+        #endif
+    }
+
+    private var iconSize: CGFloat {
+        #if os(iOS)
+        return 22
+        #else
+        return 28
+        #endif
+    }
+
+    private var rowSpacing: CGFloat {
+        #if os(iOS)
+        return 10
+        #else
+        return 16
+        #endif
+    }
+
+    private var rowPadding: CGFloat {
+        #if os(iOS)
+        return 10
+        #else
+        return 12
+        #endif
+    }
+
+    private var minimumHeight: CGFloat {
+        #if os(iOS)
+        return 78
+        #else
+        return 147
+        #endif
+    }
+
+    private var titleFont: Font {
+        #if os(iOS)
+        return .subheadline.weight(.semibold)
+        #else
+        return .headline
+        #endif
+    }
+
+    private var metadataFont: Font {
+        #if os(iOS)
+        return .caption2
+        #else
+        return .caption
+        #endif
+    }
+
+    private var descriptionFont: Font {
+        #if os(iOS)
+        return .caption
+        #else
+        return .callout
+        #endif
+    }
+
+    private var descriptionLineLimit: Int {
+        #if os(iOS)
+        return 2
+        #else
+        return 3
+        #endif
     }
 }
 
 private enum SourceRowStyle {
-    static let cornerRadius: CGFloat = 14
+    static var cornerRadius: CGFloat {
+        #if os(iOS)
+        return 10
+        #else
+        return 14
+        #endif
+    }
     static let cardShape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
 }
 

@@ -12,6 +12,78 @@ enum OrzenLayout {
     static let contentLeadingInset: CGFloat = 24
     static let contentTrailingInset: CGFloat = 24
     static let bannerHeight: CGFloat = 500
+
+    struct Metrics {
+        let contentLeadingInset: CGFloat
+        let contentTrailingInset: CGFloat
+        let bannerHeight: CGFloat
+        let posterWidth: CGFloat
+        let posterHeight: CGFloat
+        let watchingWidth: CGFloat
+        let watchingHeight: CGFloat
+        let gridMinimumWidth: CGFloat
+        let gridMaximumWidth: CGFloat
+        let gridHorizontalSpacing: CGFloat
+        let gridVerticalSpacing: CGFloat
+        let detailHorizontalPadding: CGFloat
+
+        static let mac = Metrics(
+            contentLeadingInset: 24,
+            contentTrailingInset: 24,
+            bannerHeight: 500,
+            posterWidth: 144,
+            posterHeight: 216,
+            watchingWidth: 252,
+            watchingHeight: 142,
+            gridMinimumWidth: 160,
+            gridMaximumWidth: 220,
+            gridHorizontalSpacing: 14,
+            gridVerticalSpacing: 20,
+            detailHorizontalPadding: 72
+        )
+
+        static let iPhone = Metrics(
+            contentLeadingInset: 16,
+            contentTrailingInset: 16,
+            bannerHeight: 280,
+            posterWidth: 118,
+            posterHeight: 177,
+            watchingWidth: 220,
+            watchingHeight: 124,
+            gridMinimumWidth: 88,
+            gridMaximumWidth: 140,
+            gridHorizontalSpacing: 10,
+            gridVerticalSpacing: 16,
+            detailHorizontalPadding: 16
+        )
+    }
+
+    static var current: Metrics {
+        #if os(iOS)
+        return .iPhone
+        #else
+        return .mac
+        #endif
+    }
+
+    static var posterGridColumns: [GridItem] {
+        #if os(iOS)
+        return Array(
+            repeating: GridItem(
+                .flexible(minimum: current.gridMinimumWidth, maximum: current.gridMaximumWidth),
+                spacing: current.gridHorizontalSpacing
+            ),
+            count: 3
+        )
+        #else
+        return [
+            GridItem(
+                .adaptive(minimum: current.gridMinimumWidth, maximum: current.gridMaximumWidth),
+                spacing: current.gridHorizontalSpacing
+            )
+        ]
+        #endif
+    }
 }
 
 struct FeaturedBannerArtwork: Equatable {
@@ -105,7 +177,9 @@ struct SidebarView<DetailContent: View>: View {
                     ZStack {
                         detailContent(selection)
                     }
+                    #if os(macOS)
                     .toolbarBackground(.hidden, for: .windowToolbar)
+                    #endif
                 }
 
                 if let playbackRequest = playbackStore.request {
@@ -126,8 +200,10 @@ struct SidebarView<DetailContent: View>: View {
                 featuredBannerArtwork = artwork
             }
         }
+        #if os(macOS)
         .frame(minWidth: 700, minHeight: 500)
         .toolbar(playbackStore.request == nil ? .visible : .hidden, for: .windowToolbar)
+        #endif
     }
 
     private func select(_ item: SidebarItem) {

@@ -24,6 +24,9 @@ struct SearchView: View {
                 }
             }
         }
+        #if os(iOS)
+        .toolbar(.hidden, for: .navigationBar)
+        #endif
         .task {
             await searchStore.prepareIndexIfNeeded()
         }
@@ -106,9 +109,11 @@ struct SearchView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             ScrollView {
-                LazyVGrid(columns: [
-                    GridItem(.adaptive(minimum: 160, maximum: 220), spacing: 18)
-                ], spacing: 20) {
+                LazyVGrid(
+                    columns: OrzenLayout.posterGridColumns,
+                    alignment: .leading,
+                    spacing: OrzenLayout.current.gridVerticalSpacing
+                ) {
                     ForEach(searchStore.results) { item in
                         NavigationLink(destination: InfoView(item: item)) {
                             CatalogPosterCard(
@@ -121,7 +126,7 @@ struct SearchView: View {
                         .buttonStyle(.plain)
                     }
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, OrzenLayout.current.contentLeadingInset)
                 .padding(.bottom, 24)
             }
         }

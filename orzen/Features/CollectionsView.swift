@@ -5,41 +5,55 @@ struct CollectionsView: View {
     @ObservedObject private var collectionStore = CollectionStore.shared
     @ObservedObject private var episodeWatchStore = EpisodeWatchStore.shared
     @State private var navigationPath: [CollectionRoute] = []
+    var ownsNavigationStack = true
     private let contentHorizontalPadding: CGFloat = 16
     private let contentTopPadding: CGFloat = 8
     private let contentSpacing: CGFloat = 12
     
     // MARK: - Body
     var body: some View {
-        NavigationStack(path: $navigationPath) {
-            ZStack(alignment: .topLeading) {
-                Color.black.ignoresSafeArea()
-                
-                VStack(alignment: .leading, spacing: contentSpacing) {
-                    Text("Collections")
-                        .font(.title)
-                        .foregroundColor(.white)
-                        .fontWeight(.bold)
-                    
-                    ScrollView {
-                        LazyVGrid(columns: [
-                            GridItem(.adaptive(minimum: 160, maximum: 220), spacing: 18)
-                        ], spacing: 20) {
-                            ForEach(collectionStore.collections) { collection in
-                                NavigationLink(value: CollectionRoute.collection(collection.id)) {
-                                    CollectionCard(collection: collection)
-                                }
-                                .buttonStyle(PlainButtonStyle())
+        if ownsNavigationStack {
+            NavigationStack(path: $navigationPath) {
+                content
+            }
+        } else {
+            content
+        }
+    }
+
+    private var content: some View {
+        ZStack(alignment: .topLeading) {
+            Color.black.ignoresSafeArea()
+
+            VStack(alignment: .leading, spacing: contentSpacing) {
+                Text("Collections")
+                    .font(headerTitleFont)
+                    .foregroundColor(.white)
+                    .fontWeight(.bold)
+
+                ScrollView {
+                    LazyVGrid(
+                        columns: OrzenLayout.posterGridColumns,
+                        alignment: .leading,
+                        spacing: OrzenLayout.current.gridVerticalSpacing
+                    ) {
+                        ForEach(collectionStore.collections) { collection in
+                            NavigationLink(value: CollectionRoute.collection(collection.id)) {
+                                CollectionCard(collection: collection)
                             }
+                            .buttonStyle(PlainButtonStyle())
                         }
                     }
                 }
-                .padding(.horizontal, contentHorizontalPadding)
-                .padding(.top, contentTopPadding)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             }
-            .navigationDestination(for: CollectionRoute.self, destination: destination)
+            .padding(.horizontal, contentHorizontalPadding)
+            .padding(.top, contentTopPadding)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
+        .navigationDestination(for: CollectionRoute.self, destination: destination)
+        #if os(iOS)
+        .toolbar(ownsNavigationStack ? .hidden : .visible, for: .navigationBar)
+        #endif
     }
 
     @ViewBuilder
@@ -49,6 +63,7 @@ struct CollectionsView: View {
             if let collection = collectionStore.collection(id: collectionID) {
                 CollectionDetailView(
                     collection: collection,
+                    usesValueNavigation: true,
                     onItemSelected: { item in
                         navigationPath.append(.item(item.id, collectionID: collection.id))
                     }
@@ -72,9 +87,17 @@ struct CollectionsView: View {
             }
         }
     }
+
+    private var headerTitleFont: Font {
+        #if os(iOS)
+        return .title2
+        #else
+        return .title
+        #endif
+    }
 }
 
-private enum CollectionRoute: Hashable {
+enum CollectionRoute: Hashable {
     case collection(MediaCollection.ID)
     case item(CatalogItem.ID, collectionID: MediaCollection.ID)
 }
@@ -89,7 +112,7 @@ struct CollectionCard: View {
                 .fill(Color.white.opacity(0.1))
 
             Image(systemName: collection.systemImage)
-                .font(.system(size: 46, weight: .medium))
+                .font(.system(size: iconSize, weight: .medium))
                 .foregroundColor(.white.opacity(0.38))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
@@ -109,12 +132,12 @@ struct CollectionCard: View {
             )
 
             Text(collection.name)
-                .font(.headline)
+                .font(collectionTitleFont)
                 .fontWeight(.semibold)
                 .foregroundColor(.white)
                 .lineLimit(2)
                 .shadow(radius: 4)
-                .padding(12)
+                .padding(collectionContentPadding)
         }
         .aspectRatio(2 / 3, contentMode: .fit)
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
@@ -122,6 +145,30 @@ struct CollectionCard: View {
             RoundedRectangle(cornerRadius: 8, style: .continuous)
                 .stroke(Color.white.opacity(0.08), lineWidth: 1)
         }
+    }
+
+    private var collectionTitleFont: Font {
+        #if os(iOS)
+        return .subheadline
+        #else
+        return .headline
+        #endif
+    }
+
+    private var collectionContentPadding: CGFloat {
+        #if os(iOS)
+        return 10
+        #else
+        return 12
+        #endif
+    }
+
+    private var iconSize: CGFloat {
+        #if os(iOS)
+        return 32
+        #else
+        return 46
+        #endif
     }
 }
 

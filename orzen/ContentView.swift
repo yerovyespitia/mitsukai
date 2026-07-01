@@ -2,6 +2,9 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
+        #if os(iOS)
+        iPhoneRootShell()
+        #else
         SidebarView { selectedItem in
             switch selectedItem?.title {
             case "Home":
@@ -26,6 +29,7 @@ struct ContentView: View {
                 }
             }
         }
+        #endif
     }
 }
 

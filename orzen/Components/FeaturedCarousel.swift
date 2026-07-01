@@ -6,6 +6,9 @@ struct FeaturedCarousel: View {
     @State private var hoveredButtonImage: String?
     
     private let carouselAnimation = Animation.smooth(duration: 0.58, extraBounce: 0)
+    private var metrics: OrzenLayout.Metrics {
+        OrzenLayout.current
+    }
     
     var body: some View {
         GeometryReader { geometry in
@@ -17,10 +20,11 @@ struct FeaturedCarousel: View {
                         FeaturedCarouselPage(item: selectedItem)
                     }
                     .buttonStyle(.plain)
-                    .frame(width: pageWidth, height: OrzenLayout.bannerHeight)
+                    .frame(width: pageWidth, height: metrics.bannerHeight)
                     .contentShape(Rectangle())
                     .id(selectedItem.id)
                     .transition(.opacity)
+                    #if os(macOS)
                     .onHover { hovering in
                         if hovering {
                             NSCursor.pointingHand.push()
@@ -28,6 +32,7 @@ struct FeaturedCarousel: View {
                             NSCursor.pop()
                         }
                     }
+                    #endif
                     .zIndex(1)
                 }
 
@@ -43,7 +48,7 @@ struct FeaturedCarousel: View {
             }
             .animation(carouselAnimation, value: selectedItemID)
         }
-        .frame(height: OrzenLayout.bannerHeight)
+        .frame(height: metrics.bannerHeight)
         .padding(.bottom, 22)
         .preference(
             key: FeaturedBannerArtworkKey.self,
@@ -157,13 +162,13 @@ struct FeaturedCarousel: View {
                 carouselControlsContent()
             }
             .padding(.horizontal, 18)
-            .frame(width: pageWidth, height: OrzenLayout.bannerHeight)
+            .frame(width: pageWidth, height: metrics.bannerHeight)
             .contentShape(Rectangle())
             .allowsHitTesting(true)
         } else {
             carouselControlsContent()
                 .padding(.horizontal, 18)
-                .frame(width: pageWidth, height: OrzenLayout.bannerHeight)
+                .frame(width: pageWidth, height: metrics.bannerHeight)
                 .contentShape(Rectangle())
                 .allowsHitTesting(true)
         }
@@ -190,11 +195,11 @@ private struct FeaturedCarouselPage: View {
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            Color.clear
+            background
 
             VStack(alignment: .leading, spacing: 8) {
                 Text(item.title)
-                    .font(.system(size: 40, weight: .bold))
+                    .font(.system(size: titleSize, weight: .bold))
                     .foregroundColor(.white)
                     .shadow(radius: 8)
                     .lineLimit(2)
@@ -205,10 +210,73 @@ private struct FeaturedCarouselPage: View {
                     .foregroundColor(.white.opacity(0.86))
                     .lineLimit(1)
             }
-            .padding(.leading, OrzenLayout.contentLeadingInset)
-            .padding(.trailing, OrzenLayout.contentTrailingInset)
-            .padding(.bottom, 32)
+            .padding(.leading, OrzenLayout.current.contentLeadingInset)
+            .padding(.trailing, OrzenLayout.current.contentTrailingInset)
+            .padding(.bottom, bottomPadding)
         }
+    }
+
+    @ViewBuilder
+    private var background: some View {
+        #if os(iOS)
+        GeometryReader { geometry in
+            bannerImage(width: geometry.size.width, height: geometry.size.height)
+                .frame(width: geometry.size.width, height: geometry.size.height)
+                .clipped()
+                .overlay(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color.black.opacity(0.04),
+                            Color.black.opacity(0.46),
+                            Color.black
+                        ]),
+                        startPoint: .center,
+                        endPoint: .bottom
+                    )
+                )
+        }
+        #else
+        Color.clear
+        #endif
+    }
+
+    @ViewBuilder
+    private func bannerImage(width: CGFloat, height: CGFloat) -> some View {
+        if let backgroundURL = item.backgroundURL ?? item.posterURL {
+            CachedRemoteImage(url: backgroundURL) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: width, height: height)
+            } placeholder: {
+                OrzenArtworkPlaceholder(style: .backdrop)
+                    .frame(width: width, height: height)
+            }
+        } else if let imageName = item.imageName {
+            Image(imageName)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: width, height: height)
+        } else {
+            OrzenArtworkPlaceholder(style: .backdrop)
+                .frame(width: width, height: height)
+        }
+    }
+
+    private var titleSize: CGFloat {
+        #if os(iOS)
+        return 30
+        #else
+        return 40
+        #endif
+    }
+
+    private var bottomPadding: CGFloat {
+        #if os(iOS)
+        return 28
+        #else
+        return 32
+        #endif
     }
 
     private var metadata: String {

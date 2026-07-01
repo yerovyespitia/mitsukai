@@ -14,18 +14,17 @@ struct CatalogSectionView: View {
     @State private var detailItemFromContextMenu: CatalogItem?
     @State private var isShowingContextMenuDetail = false
 
-    private let posterWidth: CGFloat = 144
-    private let posterHeight: CGFloat = 216
-    private let watchingWidth: CGFloat = 252
-    private let watchingHeight: CGFloat = 142
+    private var metrics: OrzenLayout.Metrics {
+        OrzenLayout.current
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title)
                 .font(.headline).bold()
                 .foregroundColor(.white)
-                .padding(.leading, OrzenLayout.contentLeadingInset)
-                .padding(.trailing, OrzenLayout.contentTrailingInset)
+                .padding(.leading, metrics.contentLeadingInset)
+                .padding(.trailing, metrics.contentTrailingInset)
             
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(alignment: .top, spacing: 14) {
@@ -57,8 +56,8 @@ struct CatalogSectionView: View {
                         }
                     }
                 }
-                .padding(.leading, OrzenLayout.contentLeadingInset)
-                .padding(.trailing, OrzenLayout.contentTrailingInset)
+                .padding(.leading, metrics.contentLeadingInset)
+                .padding(.trailing, metrics.contentTrailingInset)
                 .padding(.vertical, 2)
             }
         }
@@ -100,18 +99,18 @@ struct CatalogSectionView: View {
     private var cardWidth: CGFloat {
         switch cardStyle {
         case .poster:
-            posterWidth
+            metrics.posterWidth
         case .watching:
-            watchingWidth
+            metrics.watchingWidth
         }
     }
 
     private var cardHeight: CGFloat {
         switch cardStyle {
         case .poster:
-            posterHeight
+            metrics.posterHeight
         case .watching:
-            watchingHeight
+            metrics.watchingHeight
         }
     }
 }

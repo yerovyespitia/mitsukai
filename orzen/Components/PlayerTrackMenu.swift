@@ -22,13 +22,23 @@ struct PlayerTrackMenu: View {
             Image(systemName: systemName)
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(.white.opacity(tracks.isEmpty ? 0.55 : 0.92))
-                .frame(width: 28, height: 28)
+                .frame(width: buttonSize, height: buttonSize)
         }
+        #if os(macOS)
         .menuStyle(.borderlessButton)
+        #endif
         .buttonStyle(.plain)
         .help(helpText)
         .accessibilityLabel(helpText)
         .disabled(tracks.isEmpty)
+    }
+
+    private var buttonSize: CGFloat {
+        #if os(iOS)
+        return 34
+        #else
+        return 28
+        #endif
     }
 
     @ViewBuilder

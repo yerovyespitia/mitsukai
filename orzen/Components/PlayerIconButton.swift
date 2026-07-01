@@ -11,11 +11,19 @@ struct PlayerIconButton: View {
             Image(systemName: systemName)
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(.white.opacity(isEnabled ? 0.92 : 0.38))
-                .frame(width: 28, height: 28)
+                .frame(width: buttonSize, height: buttonSize)
         }
         .buttonStyle(.plain)
         .help(help)
         .accessibilityLabel(help)
         .disabled(!isEnabled)
+    }
+
+    private var buttonSize: CGFloat {
+        #if os(iOS)
+        return 34
+        #else
+        return 28
+        #endif
     }
 }

@@ -8,7 +8,9 @@ struct InfoView: View {
     @StateObject private var viewModel: InfoViewModel
     @State private var isSourcesBackHovered = false
     @Environment(\.dismiss) private var dismiss
-    private let contentHorizontalPadding: CGFloat = 72
+    private var contentHorizontalPadding: CGFloat {
+        OrzenLayout.current.detailHorizontalPadding
+    }
 
     init(item: CatalogItem) {
         self.item = item
@@ -18,7 +20,7 @@ struct InfoView: View {
     var body: some View {
         ZStack(alignment: .top) {
             backgroundImage
-                .frame(maxWidth: .infinity, maxHeight: OrzenLayout.bannerHeight)
+                .frame(maxWidth: .infinity, maxHeight: detailBackdropHeight)
                 .clipped()
                 .overlay(
                     LinearGradient(
@@ -58,13 +60,42 @@ struct InfoView: View {
                     scrollToCurrentWatchingEpisode(with: scrollProxy)
                 }
             }
+
+            topBackOverlay
         }
         .background(Color.black)
+        #if os(iOS)
+        .navigationBarBackButtonHidden(true)
+        #endif
+        #if os(macOS)
         .toolbarBackground(.visible, for: .windowToolbar)
+        #endif
         .task(id: item.id) {
             await viewModel.loadDetail()
         }
         .escapeKeyShortcut(performBackAction)
+    }
+
+    private var detailBackdropHeight: CGFloat {
+        #if os(iOS)
+        return 220
+        #else
+        return OrzenLayout.bannerHeight
+        #endif
+    }
+
+    @ViewBuilder
+    private var topBackOverlay: some View {
+        #if os(iOS)
+        HStack {
+            sourcesBackButton
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, contentHorizontalPadding)
+        .padding(.top, 10)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+        .zIndex(4)
+        #endif
     }
 
     @ViewBuilder
@@ -98,7 +129,7 @@ struct InfoView: View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 12) {
                 Text("Episodes")
-                    .font(.title2)
+                    .font(sectionTitleFont)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
 
@@ -119,7 +150,7 @@ struct InfoView: View {
                         message: "Cinemeta did not return episode metadata for this season."
                     )
                 } else {
-                    LazyVStack(spacing: 12) {
+                    LazyVStack(spacing: rowStackSpacing) {
                         ForEach(viewModel.selectedSeasonEpisodes) { episode in
                             Button {
                                 viewModel.selectEpisode(episode)
@@ -179,10 +210,12 @@ struct InfoView: View {
     private var seriesSourcesSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 12) {
+                #if os(macOS)
                 sourcesBackButton
+                #endif
 
                 Text("Sources")
-                    .font(.title2)
+                    .font(sectionTitleFont)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
 
@@ -197,6 +230,22 @@ struct InfoView: View {
             sourcesList
         }
         .padding(.horizontal, contentHorizontalPadding)
+    }
+
+    private var rowStackSpacing: CGFloat {
+        #if os(iOS)
+        return 8
+        #else
+        return 12
+        #endif
+    }
+
+    private var sectionTitleFont: Font {
+        #if os(iOS)
+        return .title3
+        #else
+        return .title2
+        #endif
     }
 
     private var currentWatchingEpisodeID: CatalogEpisode.ID? {
@@ -215,7 +264,7 @@ struct InfoView: View {
     @ViewBuilder
     private var sourcesBackButton: some View {
         Button {
-            viewModel.showEpisodes()
+            performBackAction()
         } label: {
             if #available(macOS 26, *) {
                 sourcesBackIcon
@@ -228,12 +277,18 @@ struct InfoView: View {
         }
         .buttonStyle(.plain)
         .contentShape(Circle())
+        #if os(macOS)
         .onHover { hovering in
             isSourcesBackHovered = hovering
         }
+        #endif
         .animation(.easeInOut(duration: 0.12), value: isSourcesBackHovered)
-        .help("Back to episodes")
-        .accessibilityLabel("Back to episodes")
+        .help(backButtonHelp)
+        .accessibilityLabel(backButtonHelp)
+    }
+
+    private var backButtonHelp: String {
+        viewModel.selectedEpisodeID == nil ? "Back" : "Back to episodes"
     }
 
     private var sourcesBackBackground: some View {
@@ -247,9 +302,25 @@ struct InfoView: View {
 
     private var sourcesBackIcon: some View {
         Image(systemName: "chevron.left")
-            .font(.system(size: 13, weight: .semibold))
+            .font(.system(size: backIconSize, weight: .semibold))
             .foregroundColor(.white.opacity(0.88))
-            .frame(width: 28, height: 28)
+            .frame(width: backButtonSize, height: backButtonSize)
+    }
+
+    private var backIconSize: CGFloat {
+        #if os(iOS)
+        return 15
+        #else
+        return 13
+        #endif
+    }
+
+    private var backButtonSize: CGFloat {
+        #if os(iOS)
+        return 36
+        #else
+        return 28
+        #endif
     }
 
     @ViewBuilder
@@ -258,7 +329,7 @@ struct InfoView: View {
             VStack(alignment: .leading, spacing: 16) {
                 HStack(spacing: 12) {
                     Text("Sources")
-                        .font(.title2)
+                        .font(sectionTitleFont)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
 
@@ -286,7 +357,7 @@ struct InfoView: View {
     @ViewBuilder
     private var sourcesList: some View {
         if !viewModel.visibleSources.isEmpty {
-            LazyVStack(spacing: 12) {
+            LazyVStack(spacing: rowStackSpacing) {
                 ForEach(viewModel.visibleSources) { source in
                     Button {
                         viewModel.playSource(source)

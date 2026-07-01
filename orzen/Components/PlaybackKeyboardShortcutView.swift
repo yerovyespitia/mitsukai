@@ -1,5 +1,6 @@
 import SwiftUI
 
+#if os(macOS)
 struct PlaybackKeyboardShortcutView: NSViewRepresentable {
     let onEscape: () -> Void
     let onSpace: () -> Void
@@ -71,9 +72,24 @@ struct PlaybackKeyboardShortcutView: NSViewRepresentable {
         }
     }
 }
+#else
+struct PlaybackKeyboardShortcutView: View {
+    let onEscape: () -> Void
+    let onSpace: () -> Void
+    let onFullscreen: () -> Void
+    let onMute: () -> Void
+    let onSeekBackward: () -> Void
+    let onSeekForward: () -> Void
+
+    var body: some View {
+        EmptyView()
+    }
+}
+#endif
 
 extension View {
     func escapeKeyShortcut(_ action: @escaping () -> Void) -> some View {
+        #if os(macOS)
         overlay(alignment: .bottomLeading) {
             Button(action: action) {
                 EmptyView()
@@ -83,5 +99,8 @@ extension View {
             .opacity(0)
             .accessibilityHidden(true)
         }
+        #else
+        self
+        #endif
     }
 }

@@ -40,6 +40,9 @@ struct CinemetaCatalogView: View {
                 }
             }
         }
+        #if os(iOS)
+        .toolbar(.hidden, for: .navigationBar)
+        #endif
         .task(id: catalogStore.selectedFilter) {
             await catalogStore.loadCatalog()
         }
@@ -48,7 +51,7 @@ struct CinemetaCatalogView: View {
     private var header: some View {
         HStack(alignment: .firstTextBaseline) {
             Text(title)
-                .font(.title)
+                .font(headerTitleFont)
                 .fontWeight(.bold)
                 .foregroundColor(.white)
 
@@ -70,6 +73,14 @@ struct CinemetaCatalogView: View {
             .help("Reload catalog")
         }
         .padding(.horizontal)
+    }
+
+    private var headerTitleFont: Font {
+        #if os(iOS)
+        return .title2
+        #else
+        return .title
+        #endif
     }
 
     private var filterBar: some View {
@@ -107,9 +118,11 @@ struct CinemetaCatalogView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             ScrollView {
-                LazyVGrid(columns: [
-                    GridItem(.adaptive(minimum: 160, maximum: 220), spacing: 18)
-                ], spacing: 20) {
+                LazyVGrid(
+                    columns: OrzenLayout.posterGridColumns,
+                    alignment: .leading,
+                    spacing: OrzenLayout.current.gridVerticalSpacing
+                ) {
                     ForEach(displayItems) { item in
                         NavigationLink(destination: InfoView(item: item)) {
                             CatalogPosterCard(
@@ -122,7 +135,7 @@ struct CinemetaCatalogView: View {
                         .buttonStyle(.plain)
                     }
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, OrzenLayout.current.contentLeadingInset)
                 .padding(.bottom, 24)
             }
         }

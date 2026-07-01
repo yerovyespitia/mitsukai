@@ -3,6 +3,7 @@ import SwiftUI
 struct CollectionDetailView: View {
     // MARK: - Properties
     let collection: MediaCollection
+    var usesValueNavigation = false
     let onItemSelected: (CatalogItem) -> Void
     @ObservedObject private var collectionStore = CollectionStore.shared
     @ObservedObject private var episodeWatchStore = EpisodeWatchStore.shared
@@ -24,7 +25,7 @@ struct CollectionDetailView: View {
                         .foregroundColor(.gray)
                     
                     Text(currentCollection.name)
-                        .font(.title)
+                        .font(headerTitleFont)
                         .foregroundColor(.white)
                         .fontWeight(.bold)
                     
@@ -44,22 +45,25 @@ struct CollectionDetailView: View {
                     )
                 } else {
                     ScrollView {
-                        LazyVGrid(columns: [
-                            GridItem(.adaptive(minimum: 160, maximum: 200), spacing: 16)
-                        ], spacing: 16) {
+                        LazyVGrid(
+                            columns: OrzenLayout.posterGridColumns,
+                            alignment: .leading,
+                            spacing: OrzenLayout.current.gridVerticalSpacing
+                        ) {
                             ForEach(items) { item in
-                                Button {
-                                    onItemSelected(item)
-                                } label: {
-                                    CatalogPosterCard(
-                                        item: item,
-                                        showsDroppedContextAction: showsDroppedContextAction,
-                                        onViewDetails: {
-                                            onItemSelected(item)
-                                        }
-                                    )
+                                if usesValueNavigation {
+                                    NavigationLink(value: CollectionRoute.item(item.id, collectionID: collection.id)) {
+                                        posterCard(for: item)
+                                    }
+                                    .buttonStyle(.plain)
+                                } else {
+                                    Button {
+                                        onItemSelected(item)
+                                    } label: {
+                                        posterCard(for: item)
+                                    }
+                                    .buttonStyle(.plain)
                                 }
-                                .buttonStyle(.plain)
                             }
                         }
                     }
@@ -70,9 +74,30 @@ struct CollectionDetailView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         .navigationTitle(currentCollection.name)
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+        #endif
         .escapeKeyShortcut {
             dismiss()
         }
+    }
+
+    private func posterCard(for item: CatalogItem) -> some View {
+        CatalogPosterCard(
+            item: item,
+            showsDroppedContextAction: showsDroppedContextAction,
+            onViewDetails: {
+                onItemSelected(item)
+            }
+        )
+    }
+
+    private var headerTitleFont: Font {
+        #if os(iOS)
+        return .title3
+        #else
+        return .title
+        #endif
     }
 
     private var currentCollection: MediaCollection {

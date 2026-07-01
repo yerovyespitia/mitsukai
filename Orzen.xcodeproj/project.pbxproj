@@ -10,13 +10,6 @@
 		6D1AD9292DD7BAD200BFF0DE /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D1AD9282DD7BAD200BFF0DE /* InfoView.swift */; };
 		6D1AD92B2E03A9A100BFF0DE /* MPVPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D1AD92A2E03A9A100BFF0DE /* MPVPlayerView.swift */; };
 		6D1AD92E2E03D33A00BFF0DE /* MPVOpenGLBridge.c in Sources */ = {isa = PBXBuildFile; fileRef = 6D1AD92D2E03D33A00BFF0DE /* MPVOpenGLBridge.c */; };
-		6DC0DE012E09000000B5D7A1 /* CinemetaClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC0DE002E09000000B5D7A1 /* CinemetaClient.swift */; };
-		6DC0DE032E09000000B5D7A1 /* CatalogItemCollectionActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC0DE022E09000000B5D7A1 /* CatalogItemCollectionActions.swift */; };
-		6DC0DE052E09000000B5D7A1 /* InfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC0DE042E09000000B5D7A1 /* InfoViewModel.swift */; };
-		6DC0DE072E09000000B5D7A1 /* PlayerMediaTrack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC0DE062E09000000B5D7A1 /* PlayerMediaTrack.swift */; };
-		6DC0DE092E09000000B5D7A1 /* MPVPlaybackController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC0DE082E09000000B5D7A1 /* MPVPlaybackController.swift */; };
-		6DC0DE0B2E09000000B5D7A1 /* StreamSourceResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC0DE0A2E09000000B5D7A1 /* StreamSourceResolver.swift */; };
-		6DC0DE0D2E09000000B5D7A1 /* ExternalSubtitleResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC0DE0C2E09000000B5D7A1 /* ExternalSubtitleResolver.swift */; };
 		6D2872012E034A0000B5D7A1 /* LocalAddonStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D2872002E034A0000B5D7A1 /* LocalAddonStore.swift */; };
 		6D2872032E034A0100B5D7A1 /* StremioStreamClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D2872022E034A0100B5D7A1 /* StremioStreamClient.swift */; };
 		6D2872072E034A0200B5D7A1 /* StremioSubtitleClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D2872062E034A0200B5D7A1 /* StremioSubtitleClient.swift */; };
@@ -31,6 +24,7 @@
 		6D5648162DD105F8003D7144 /* SeriesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D5648142DD105F8003D7144 /* SeriesView.swift */; };
 		6D9055192DCE3D490023DEAE /* OrzenApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9055182DCE3D490023DEAE /* OrzenApp.swift */; };
 		6D90551B2DCE3D490023DEAE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D90551A2DCE3D490023DEAE /* ContentView.swift */; };
+		6D90553A2E1450010023DEAE /* iPhoneRootShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9055392E1450010023DEAE /* iPhoneRootShell.swift */; };
 		6D90551D2DCE3D4D0023DEAE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D90551C2DCE3D4D0023DEAE /* Assets.xcassets */; };
 		6D9055202DCE3D4D0023DEAE /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D90551F2DCE3D4D0023DEAE /* Preview Assets.xcassets */; };
 		6D90552A2DCE3FCF0023DEAE /* CatalogData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9055272DCE3FCF0023DEAE /* CatalogData.swift */; };
@@ -45,14 +39,12 @@
 		6DAA10042E04000000B5D7A1 /* CinemetaCatalogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA20042E04000000B5D7A1 /* CinemetaCatalogView.swift */; };
 		6DAA10052E04000000B5D7A1 /* CatalogFilterButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA20052E04000000B5D7A1 /* CatalogFilterButton.swift */; };
 		6DAA10062E04000000B5D7A1 /* CatalogPosterCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA20062E04000000B5D7A1 /* CatalogPosterCard.swift */; };
-		6DAA10182E04000000B5D7A1 /* CatalogItemContextMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA20182E04000000B5D7A1 /* CatalogItemContextMenu.swift */; };
 		6DAA10072E04000000B5D7A1 /* CinemetaCatalogPresets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA20072E04000000B5D7A1 /* CinemetaCatalogPresets.swift */; };
 		6DAA10082E04000000B5D7A1 /* CinemetaCatalogStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA20082E04000000B5D7A1 /* CinemetaCatalogStore.swift */; };
 		6DAA10092E04000000B5D7A1 /* DetailUnavailableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA20092E04000000B5D7A1 /* DetailUnavailableView.swift */; };
 		6DAA100A2E04000000B5D7A1 /* EpisodeRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA200A2E04000000B5D7A1 /* EpisodeRow.swift */; };
 		6DAA100B2E04000000B5D7A1 /* SeasonButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA200B2E04000000B5D7A1 /* SeasonButton.swift */; };
 		6DAA100C2E04000000B5D7A1 /* SourceRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA200C2E04000000B5D7A1 /* SourceRow.swift */; };
-		6DAA10172E04000000B5D7A1 /* SourceFilterPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA20172E04000000B5D7A1 /* SourceFilterPicker.swift */; };
 		6DAA100D2E04000000B5D7A1 /* StreamPlaybackStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA200D2E04000000B5D7A1 /* StreamPlaybackStore.swift */; };
 		6DAA100E2E04000000B5D7A1 /* StreamPlaybackObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA200E2E04000000B5D7A1 /* StreamPlaybackObserver.swift */; };
 		6DAA100F2E04000000B5D7A1 /* StreamPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA200F2E04000000B5D7A1 /* StreamPlayerView.swift */; };
@@ -63,11 +55,20 @@
 		6DAA10142E04000000B5D7A1 /* NativePlayerTrackResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA20142E04000000B5D7A1 /* NativePlayerTrackResolver.swift */; };
 		6DAA10152E04000000B5D7A1 /* StreamPlayerChromeVisibilityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA20152E04000000B5D7A1 /* StreamPlayerChromeVisibilityController.swift */; };
 		6DAA10162E04000000B5D7A1 /* StreamPlayerKeyboardControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA20162E04000000B5D7A1 /* StreamPlayerKeyboardControls.swift */; };
+		6DAA10172E04000000B5D7A1 /* SourceFilterPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA20172E04000000B5D7A1 /* SourceFilterPicker.swift */; };
+		6DAA10182E04000000B5D7A1 /* CatalogItemContextMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA20182E04000000B5D7A1 /* CatalogItemContextMenu.swift */; };
 		6DAA10192E10000000B5D7A1 /* StreamPlayerNextEpisodeBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA20192E10000000B5D7A1 /* StreamPlayerNextEpisodeBanner.swift */; };
 		6DAA101A2E10000000B5D7A1 /* PlayerFlatSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA201A2E10000000B5D7A1 /* PlayerFlatSlider.swift */; };
 		6DAA101B2E10000000B5D7A1 /* PlayerIconButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA201B2E10000000B5D7A1 /* PlayerIconButton.swift */; };
 		6DAA101C2E10000000B5D7A1 /* PlayerTrackMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAA201C2E10000000B5D7A1 /* PlayerTrackMenu.swift */; };
 		6DBEEF022E04A00000B5D7A1 /* ProfileSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DBEEF012E04A00000B5D7A1 /* ProfileSelectionView.swift */; };
+		6DC0DE012E09000000B5D7A1 /* CinemetaClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC0DE002E09000000B5D7A1 /* CinemetaClient.swift */; };
+		6DC0DE032E09000000B5D7A1 /* CatalogItemCollectionActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC0DE022E09000000B5D7A1 /* CatalogItemCollectionActions.swift */; };
+		6DC0DE052E09000000B5D7A1 /* InfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC0DE042E09000000B5D7A1 /* InfoViewModel.swift */; };
+		6DC0DE072E09000000B5D7A1 /* PlayerMediaTrack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC0DE062E09000000B5D7A1 /* PlayerMediaTrack.swift */; };
+		6DC0DE092E09000000B5D7A1 /* MPVPlaybackController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC0DE082E09000000B5D7A1 /* MPVPlaybackController.swift */; };
+		6DC0DE0B2E09000000B5D7A1 /* StreamSourceResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC0DE0A2E09000000B5D7A1 /* StreamSourceResolver.swift */; };
+		6DC0DE0D2E09000000B5D7A1 /* ExternalSubtitleResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC0DE0C2E09000000B5D7A1 /* ExternalSubtitleResolver.swift */; };
 		6DF00D022E0A00000B5D7A1 /* StreamPlayerEpisodeSidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DF00D012E0A00000B5D7A1 /* StreamPlayerEpisodeSidebar.swift */; };
 		6DF00D042E0A00000B5D7A1 /* StreamPlayerEpisodeSidebarRows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DF00D032E0A00000B5D7A1 /* StreamPlayerEpisodeSidebarRows.swift */; };
 /* End PBXBuildFile section */
@@ -77,13 +78,6 @@
 		6D1AD92A2E03A9A100BFF0DE /* MPVPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MPVPlayerView.swift; sourceTree = "<group>"; };
 		6D1AD92C2E03D33A00BFF0DE /* Orzen-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Orzen-Bridging-Header.h"; sourceTree = "<group>"; };
 		6D1AD92D2E03D33A00BFF0DE /* MPVOpenGLBridge.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MPVOpenGLBridge.c; sourceTree = "<group>"; };
-		6DC0DE002E09000000B5D7A1 /* CinemetaClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CinemetaClient.swift; sourceTree = "<group>"; };
-		6DC0DE022E09000000B5D7A1 /* CatalogItemCollectionActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogItemCollectionActions.swift; sourceTree = "<group>"; };
-		6DC0DE042E09000000B5D7A1 /* InfoViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoViewModel.swift; sourceTree = "<group>"; };
-		6DC0DE062E09000000B5D7A1 /* PlayerMediaTrack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerMediaTrack.swift; sourceTree = "<group>"; };
-		6DC0DE082E09000000B5D7A1 /* MPVPlaybackController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MPVPlaybackController.swift; sourceTree = "<group>"; };
-		6DC0DE0A2E09000000B5D7A1 /* StreamSourceResolver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamSourceResolver.swift; sourceTree = "<group>"; };
-		6DC0DE0C2E09000000B5D7A1 /* ExternalSubtitleResolver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExternalSubtitleResolver.swift; sourceTree = "<group>"; };
 		6D2872002E034A0000B5D7A1 /* LocalAddonStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalAddonStore.swift; sourceTree = "<group>"; };
 		6D2872022E034A0100B5D7A1 /* StremioStreamClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StremioStreamClient.swift; sourceTree = "<group>"; };
 		6D2872062E034A0200B5D7A1 /* StremioSubtitleClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StremioSubtitleClient.swift; sourceTree = "<group>"; };
@@ -99,6 +93,7 @@
 		6D9055152DCE3D490023DEAE /* Orzen.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Orzen.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6D9055182DCE3D490023DEAE /* OrzenApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrzenApp.swift; sourceTree = "<group>"; };
 		6D90551A2DCE3D490023DEAE /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		6D9055392E1450010023DEAE /* iPhoneRootShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iPhoneRootShell.swift; sourceTree = "<group>"; };
 		6D90551C2DCE3D4D0023DEAE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6D90551F2DCE3D4D0023DEAE /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		6D9055212DCE3D4D0023DEAE /* Orzen.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Orzen.entitlements; sourceTree = "<group>"; };
@@ -114,14 +109,12 @@
 		6DAA20042E04000000B5D7A1 /* CinemetaCatalogView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CinemetaCatalogView.swift; sourceTree = "<group>"; };
 		6DAA20052E04000000B5D7A1 /* CatalogFilterButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogFilterButton.swift; sourceTree = "<group>"; };
 		6DAA20062E04000000B5D7A1 /* CatalogPosterCard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogPosterCard.swift; sourceTree = "<group>"; };
-		6DAA20182E04000000B5D7A1 /* CatalogItemContextMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogItemContextMenu.swift; sourceTree = "<group>"; };
 		6DAA20072E04000000B5D7A1 /* CinemetaCatalogPresets.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CinemetaCatalogPresets.swift; sourceTree = "<group>"; };
 		6DAA20082E04000000B5D7A1 /* CinemetaCatalogStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CinemetaCatalogStore.swift; sourceTree = "<group>"; };
 		6DAA20092E04000000B5D7A1 /* DetailUnavailableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailUnavailableView.swift; sourceTree = "<group>"; };
 		6DAA200A2E04000000B5D7A1 /* EpisodeRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EpisodeRow.swift; sourceTree = "<group>"; };
 		6DAA200B2E04000000B5D7A1 /* SeasonButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SeasonButton.swift; sourceTree = "<group>"; };
 		6DAA200C2E04000000B5D7A1 /* SourceRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SourceRow.swift; sourceTree = "<group>"; };
-		6DAA20172E04000000B5D7A1 /* SourceFilterPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SourceFilterPicker.swift; sourceTree = "<group>"; };
 		6DAA200D2E04000000B5D7A1 /* StreamPlaybackStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamPlaybackStore.swift; sourceTree = "<group>"; };
 		6DAA200E2E04000000B5D7A1 /* StreamPlaybackObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamPlaybackObserver.swift; sourceTree = "<group>"; };
 		6DAA200F2E04000000B5D7A1 /* StreamPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamPlayerView.swift; sourceTree = "<group>"; };
@@ -132,11 +125,20 @@
 		6DAA20142E04000000B5D7A1 /* NativePlayerTrackResolver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NativePlayerTrackResolver.swift; sourceTree = "<group>"; };
 		6DAA20152E04000000B5D7A1 /* StreamPlayerChromeVisibilityController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamPlayerChromeVisibilityController.swift; sourceTree = "<group>"; };
 		6DAA20162E04000000B5D7A1 /* StreamPlayerKeyboardControls.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamPlayerKeyboardControls.swift; sourceTree = "<group>"; };
+		6DAA20172E04000000B5D7A1 /* SourceFilterPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SourceFilterPicker.swift; sourceTree = "<group>"; };
+		6DAA20182E04000000B5D7A1 /* CatalogItemContextMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogItemContextMenu.swift; sourceTree = "<group>"; };
 		6DAA20192E10000000B5D7A1 /* StreamPlayerNextEpisodeBanner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamPlayerNextEpisodeBanner.swift; sourceTree = "<group>"; };
 		6DAA201A2E10000000B5D7A1 /* PlayerFlatSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerFlatSlider.swift; sourceTree = "<group>"; };
 		6DAA201B2E10000000B5D7A1 /* PlayerIconButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerIconButton.swift; sourceTree = "<group>"; };
 		6DAA201C2E10000000B5D7A1 /* PlayerTrackMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerTrackMenu.swift; sourceTree = "<group>"; };
 		6DBEEF012E04A00000B5D7A1 /* ProfileSelectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileSelectionView.swift; sourceTree = "<group>"; };
+		6DC0DE002E09000000B5D7A1 /* CinemetaClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CinemetaClient.swift; sourceTree = "<group>"; };
+		6DC0DE022E09000000B5D7A1 /* CatalogItemCollectionActions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CatalogItemCollectionActions.swift; sourceTree = "<group>"; };
+		6DC0DE042E09000000B5D7A1 /* InfoViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoViewModel.swift; sourceTree = "<group>"; };
+		6DC0DE062E09000000B5D7A1 /* PlayerMediaTrack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerMediaTrack.swift; sourceTree = "<group>"; };
+		6DC0DE082E09000000B5D7A1 /* MPVPlaybackController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MPVPlaybackController.swift; sourceTree = "<group>"; };
+		6DC0DE0A2E09000000B5D7A1 /* StreamSourceResolver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamSourceResolver.swift; sourceTree = "<group>"; };
+		6DC0DE0C2E09000000B5D7A1 /* ExternalSubtitleResolver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExternalSubtitleResolver.swift; sourceTree = "<group>"; };
 		6DF00D012E0A00000B5D7A1 /* StreamPlayerEpisodeSidebar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamPlayerEpisodeSidebar.swift; sourceTree = "<group>"; };
 		6DF00D032E0A00000B5D7A1 /* StreamPlayerEpisodeSidebarRows.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamPlayerEpisodeSidebarRows.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -152,6 +154,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6D1AD92F2E03D33A00BFF0DE /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				6D1AD92D2E03D33A00BFF0DE /* MPVOpenGLBridge.c */,
+			);
+			path = Support;
+			sourceTree = "<group>";
+		};
 		6D2872042E034A0400B5D7A1 /* Stores */ = {
 			isa = PBXGroup;
 			children = (
@@ -244,18 +254,10 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
-		6D1AD92F2E03D33A00BFF0DE /* Support */ = {
-			isa = PBXGroup;
-			children = (
-				6D1AD92D2E03D33A00BFF0DE /* MPVOpenGLBridge.c */,
-			);
-			path = Support;
-			sourceTree = "<group>";
-		};
 		6D90550C2DCE3D480023DEAE = {
 			isa = PBXGroup;
 			children = (
-				6D9055172DCE3D490023DEAE /* Orzen */,
+				6D9055172DCE3D490023DEAE /* orzen */,
 				6D9055162DCE3D490023DEAE /* Products */,
 			);
 			sourceTree = "<group>";
@@ -268,7 +270,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		6D9055172DCE3D490023DEAE /* Orzen */ = {
+		6D9055172DCE3D490023DEAE /* orzen */ = {
 			isa = PBXGroup;
 			children = (
 				6D56481A2DD1103C003D7144 /* Models */,
@@ -280,6 +282,7 @@
 				6D9055182DCE3D490023DEAE /* OrzenApp.swift */,
 				6D341C2E2DD0782E0072A85D /* Sidebar.swift */,
 				6D90551A2DCE3D490023DEAE /* ContentView.swift */,
+				6D9055392E1450010023DEAE /* iPhoneRootShell.swift */,
 				6D90551C2DCE3D4D0023DEAE /* Assets.xcassets */,
 				6D9055212DCE3D4D0023DEAE /* Orzen.entitlements */,
 				6D1AD92C2E03D33A00BFF0DE /* Orzen-Bridging-Header.h */,
@@ -385,6 +388,7 @@
 				6D938E892DD4C3240048DEB4 /* CollectionDetailView.swift in Sources */,
 				6DAA100A2E04000000B5D7A1 /* EpisodeRow.swift in Sources */,
 				6D90551B2DCE3D490023DEAE /* ContentView.swift in Sources */,
+				6D90553A2E1450010023DEAE /* iPhoneRootShell.swift in Sources */,
 				6DAA10052E04000000B5D7A1 /* CatalogFilterButton.swift in Sources */,
 				6D341C2F2DD0782E0072A85D /* Sidebar.swift in Sources */,
 				6DAA10112E04000000B5D7A1 /* NativePlayerView.swift in Sources */,
@@ -554,7 +558,7 @@
 		6D9055252DCE3D4D0023DEAE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=macosx*]" = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = orzen/Orzen.entitlements;
 				CODE_SIGN_STYLE = Automatic;
@@ -565,22 +569,27 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				HEADER_SEARCH_PATHS = (
+				"HEADER_SEARCH_PATHS[sdk=macosx*]" = (
 					"$(inherited)",
 					/opt/homebrew/include,
 				);
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphone*]" = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 					/opt/homebrew/lib,
 				);
-				LIBRARY_SEARCH_PATHS = (
+				"LIBRARY_SEARCH_PATHS[sdk=macosx*]" = (
 					"$(inherited)",
 					/opt/homebrew/lib,
 				);
 				MARKETING_VERSION = 1.0;
-				OTHER_LDFLAGS = (
+				"OTHER_LDFLAGS[sdk=macosx*]" = (
 					"$(inherited)",
 					"-lmpv",
 					"-framework",
@@ -588,16 +597,19 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.yerovyespitia.orzen;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "orzen/Orzen-Bridging-Header.h";
+				"SWIFT_OBJC_BRIDGING_HEADER[sdk=macosx*]" = "orzen/Orzen-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
 		6D9055262DCE3D4D0023DEAE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=macosx*]" = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = orzen/Orzen.entitlements;
 				CODE_SIGN_STYLE = Automatic;
@@ -608,22 +620,27 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				HEADER_SEARCH_PATHS = (
+				"HEADER_SEARCH_PATHS[sdk=macosx*]" = (
 					"$(inherited)",
 					/opt/homebrew/include,
 				);
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphone*]" = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 					/opt/homebrew/lib,
 				);
-				LIBRARY_SEARCH_PATHS = (
+				"LIBRARY_SEARCH_PATHS[sdk=macosx*]" = (
 					"$(inherited)",
 					/opt/homebrew/lib,
 				);
 				MARKETING_VERSION = 1.0;
-				OTHER_LDFLAGS = (
+				"OTHER_LDFLAGS[sdk=macosx*]" = (
 					"$(inherited)",
 					"-lmpv",
 					"-framework",
@@ -631,9 +648,12 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.yerovyespitia.orzen;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "orzen/Orzen-Bridging-Header.h";
+				"SWIFT_OBJC_BRIDGING_HEADER[sdk=macosx*]" = "orzen/Orzen-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

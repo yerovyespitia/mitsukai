@@ -1,3 +1,4 @@
+#if os(macOS)
 import Combine
 import Foundation
 
@@ -99,3 +100,37 @@ final class MPVPlaybackController: ObservableObject {
         playerView?.refreshPlaybackState()
     }
 }
+#else
+import Combine
+import Foundation
+
+@MainActor
+final class MPVPlaybackController: ObservableObject {
+    @Published var errorMessage: String?
+    @Published var isStarting = false
+    @Published var isRunning = false
+    @Published var isPaused = false
+    @Published var currentTime: Double = 0
+    @Published var duration: Double = 0
+    @Published var volume: Double = 100
+    @Published var isMuted = false
+    @Published var didReachEnd = false
+    @Published var audioTracks: [PlayerMediaTrack] = []
+    @Published var subtitleTracks: [PlayerMediaTrack] = []
+
+    func clearError() {
+        errorMessage = nil
+    }
+
+    func stop() {}
+    func togglePlayPause() {}
+    func pause() {}
+    func seek(to time: Double) {}
+    func seek(by offset: Double) {}
+    func setVolume(_ value: Double) {}
+    func toggleMute() {}
+    func selectAudioTrack(_ track: PlayerMediaTrack) {}
+    func selectSubtitleTrack(_ track: PlayerMediaTrack) {}
+    func refreshPlaybackState() {}
+}
+#endif

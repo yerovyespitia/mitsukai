@@ -7,9 +7,9 @@ struct EpisodeRow: View {
     var isCurrent = false
 
     var body: some View {
-        HStack(alignment: .top, spacing: 16) {
+        HStack(alignment: .top, spacing: rowSpacing) {
             thumbnail
-                .frame(width: 190, height: 123)
+                .frame(width: thumbnailWidth, height: thumbnailHeight)
                 .clipShape(EpisodeRowStyle.cardShape)
                 .overlay {
                     EpisodeRowStyle.cardShape
@@ -25,29 +25,101 @@ struct EpisodeRow: View {
 
             VStack(alignment: .leading, spacing: 8) {
                 Text(episode.displayTitle)
-                    .font(.headline)
+                    .font(titleFont)
                     .foregroundColor(.white)
                     .lineLimit(2)
 
                 if !episode.metadata.isEmpty {
                     Text(episode.metadata.joined(separator: " • "))
-                        .font(.caption)
+                        .font(metadataFont)
                         .foregroundColor(.white.opacity(0.62))
                         .lineLimit(1)
                 }
 
                 Text(episode.description ?? "No description available.")
-                    .font(.callout)
+                    .font(descriptionFont)
                     .foregroundColor(.white.opacity(0.78))
-                    .lineLimit(3)
+                    .lineLimit(descriptionLineLimit)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
             Spacer(minLength: 0)
         }
-        .padding(12)
-        .frame(minHeight: 147, alignment: .top)
+        .padding(rowPadding)
+        .frame(minHeight: minimumHeight, alignment: .top)
         .rowBackground(isSelected: isSelected)
+    }
+
+    private var thumbnailWidth: CGFloat {
+        #if os(iOS)
+        return 104
+        #else
+        return 190
+        #endif
+    }
+
+    private var thumbnailHeight: CGFloat {
+        #if os(iOS)
+        return 68
+        #else
+        return 123
+        #endif
+    }
+
+    private var rowSpacing: CGFloat {
+        #if os(iOS)
+        return 10
+        #else
+        return 16
+        #endif
+    }
+
+    private var rowPadding: CGFloat {
+        #if os(iOS)
+        return 10
+        #else
+        return 12
+        #endif
+    }
+
+    private var minimumHeight: CGFloat {
+        #if os(iOS)
+        return 88
+        #else
+        return 147
+        #endif
+    }
+
+    private var titleFont: Font {
+        #if os(iOS)
+        return .subheadline.weight(.semibold)
+        #else
+        return .headline
+        #endif
+    }
+
+    private var metadataFont: Font {
+        #if os(iOS)
+        return .caption2
+        #else
+        return .caption
+        #endif
+    }
+
+    private var descriptionFont: Font {
+        #if os(iOS)
+        return .caption
+        #else
+        return .callout
+        #endif
+    }
+
+    private var descriptionLineLimit: Int {
+        #if os(iOS)
+        return 2
+        #else
+        return 3
+        #endif
     }
 
     @ViewBuilder
@@ -109,7 +181,13 @@ struct EpisodeRow: View {
 }
 
 private enum EpisodeRowStyle {
-    static let cornerRadius: CGFloat = 14
+    static var cornerRadius: CGFloat {
+        #if os(iOS)
+        return 10
+        #else
+        return 14
+        #endif
+    }
     static let cardShape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
 }
 

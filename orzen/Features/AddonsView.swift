@@ -3,32 +3,44 @@ import SwiftUI
 struct AddonsView: View {
     @ObservedObject private var addonStore = LocalAddonStore.shared
     @State private var configuringSubtitleAddon: LocalAddon?
+    var ownsNavigationStack = true
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Color.black.ignoresSafeArea()
-
-                VStack(alignment: .leading, spacing: 24) {
-                    header
-                    addonList
-                    Spacer()
-                }
-                .padding(.horizontal)
-                .padding(.bottom, 24)
+        if ownsNavigationStack {
+            NavigationStack {
+                content
             }
-            .navigationTitle("Addons")
-            .sheet(item: $configuringSubtitleAddon) { addon in
-                SubtitleAddonSettingsView(addonName: addon.name)
-            }
+        } else {
+            content
         }
+    }
+
+    private var content: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+
+            VStack(alignment: .leading, spacing: contentSpacing) {
+                header
+                addonList
+                Spacer()
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 24)
+        }
+        .navigationTitle(ownsNavigationStack ? "Addons" : "")
+        .sheet(item: $configuringSubtitleAddon) { addon in
+            SubtitleAddonSettingsView(addonName: addon.name)
+        }
+        #if os(iOS)
+        .toolbar(ownsNavigationStack ? .hidden : .visible, for: .navigationBar)
+        #endif
     }
 
     private var header: some View {
         HStack {
             VStack(alignment: .leading, spacing: 6) {
                 Text("Addons")
-                    .font(.title)
+                    .font(headerTitleFont)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
 
@@ -40,8 +52,24 @@ struct AddonsView: View {
         }
     }
 
+    private var contentSpacing: CGFloat {
+        #if os(iOS)
+        return 16
+        #else
+        return 24
+        #endif
+    }
+
+    private var headerTitleFont: Font {
+        #if os(iOS)
+        return .title2
+        #else
+        return .title
+        #endif
+    }
+
     private var addonList: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: addonRowSpacing) {
             AddonRow(
                 name: "Cinemeta",
                 description: "Default addon for catalogs and metadata.",
@@ -69,6 +97,14 @@ struct AddonsView: View {
             }
         }
     }
+
+    private var addonRowSpacing: CGFloat {
+        #if os(iOS)
+        return 10
+        #else
+        return 16
+        #endif
+    }
 }
 
 private struct AddonRow: View {
@@ -81,21 +117,23 @@ private struct AddonRow: View {
     let removeAction: (() -> Void)?
 
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: rowSpacing) {
             Image(systemName: "puzzlepiece.extension.fill")
-                .font(.title2)
+                .font(iconFont)
                 .foregroundColor(.white)
-                .frame(width: 44, height: 44)
+                .frame(width: iconSize, height: iconSize)
                 .background(Color.white.opacity(0.08))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: iconCornerRadius))
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(name)
-                    .font(.headline)
+                    .font(titleFont)
                     .foregroundColor(.white)
 
                 Text(description)
+                    .font(descriptionFont)
                     .foregroundColor(.white.opacity(0.7))
+                    .lineLimit(2)
 
                 Text(category)
                     .font(.caption.weight(.semibold))
@@ -112,9 +150,73 @@ private struct AddonRow: View {
 
             actionButtons
         }
-        .padding(20)
+        .padding(rowPadding)
         .background(Color.white.opacity(0.06))
-        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .clipShape(RoundedRectangle(cornerRadius: rowCornerRadius))
+    }
+
+    private var rowSpacing: CGFloat {
+        #if os(iOS)
+        return 12
+        #else
+        return 16
+        #endif
+    }
+
+    private var rowPadding: CGFloat {
+        #if os(iOS)
+        return 14
+        #else
+        return 20
+        #endif
+    }
+
+    private var rowCornerRadius: CGFloat {
+        #if os(iOS)
+        return 14
+        #else
+        return 18
+        #endif
+    }
+
+    private var iconFont: Font {
+        #if os(iOS)
+        return .headline
+        #else
+        return .title2
+        #endif
+    }
+
+    private var iconSize: CGFloat {
+        #if os(iOS)
+        return 36
+        #else
+        return 44
+        #endif
+    }
+
+    private var iconCornerRadius: CGFloat {
+        #if os(iOS)
+        return 10
+        #else
+        return 12
+        #endif
+    }
+
+    private var titleFont: Font {
+        #if os(iOS)
+        return .subheadline.weight(.semibold)
+        #else
+        return .headline
+        #endif
+    }
+
+    private var descriptionFont: Font {
+        #if os(iOS)
+        return .caption
+        #else
+        return .body
+        #endif
     }
 
     @ViewBuilder
@@ -253,10 +355,39 @@ private struct SubtitleAddonSettingsView: View {
 
             Spacer(minLength: 0)
         }
-        .padding(24)
-        .frame(width: 420, height: 300)
+        .padding(settingsPadding)
+        .frame(width: settingsWidth)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .presentationDetents(presentationDetents)
+        #if os(iOS)
+        .presentationDragIndicator(.visible)
+        #endif
         .background(.thinMaterial)
         .presentationBackground(.thinMaterial)
+    }
+
+    private var settingsPadding: CGFloat {
+        #if os(iOS)
+        return 20
+        #else
+        return 24
+        #endif
+    }
+
+    private var settingsWidth: CGFloat? {
+        #if os(iOS)
+        return nil
+        #else
+        return 420
+        #endif
+    }
+
+    private var presentationDetents: Set<PresentationDetent> {
+        #if os(iOS)
+        return [.height(330)]
+        #else
+        return [.height(300)]
+        #endif
     }
 }
 
@@ -328,6 +459,7 @@ private struct SubtitleLanguageRow: View {
             Toggle("", isOn: $isSelected)
                 .labelsHidden()
                 .toggleStyle(.switch)
+                .tint(.green)
         }
         .padding(.horizontal, 20)
         .frame(height: 54)

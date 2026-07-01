@@ -18,7 +18,7 @@ struct HomeView: View {
                             ProgressView()
                                 .controlSize(.small)
                                 .tint(.white)
-                                .padding(.leading, OrzenLayout.contentLeadingInset)
+                                .padding(.leading, OrzenLayout.current.contentLeadingInset)
                                 .padding(.bottom, 12)
                         }
 
@@ -50,7 +50,11 @@ struct HomeView: View {
                 }
                 .ignoresSafeArea(.container, edges: .top)
             }
+            .ignoresSafeArea(.container, edges: .top)
         }
+        #if os(iOS)
+        .toolbar(.hidden, for: .navigationBar)
+        #endif
         .task {
             catalogStore.loadIfNeeded()
         }

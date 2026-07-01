@@ -17,6 +17,14 @@ struct InfoHeroView: View {
     }
 
     var body: some View {
+        #if os(iOS)
+        mobileBody
+        #else
+        desktopBody
+        #endif
+    }
+
+    private var desktopBody: some View {
         HStack(alignment: .top, spacing: 32) {
             posterImage
                 .frame(width: 220, height: 320)
@@ -47,6 +55,46 @@ struct InfoHeroView: View {
         }
         .padding(.horizontal, horizontalPadding)
         .padding(.top, 116)
+        .alert("Mark all episodes as watched?", isPresented: $isConfirmingMarkAllWatched) {
+            Button("Cancel", role: .cancel) { }
+            Button("Mark All", action: markSeriesWatched)
+        } message: {
+            Text("This series already has watched episodes. Marking all will mark every episode as watched.")
+        }
+    }
+
+    private var mobileBody: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .bottom, spacing: 12) {
+                posterImage
+                    .frame(width: 92, height: 138)
+                    .clipped()
+                    .cornerRadius(10)
+                    .shadow(radius: 6)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.white.opacity(0.18), lineWidth: 1)
+                    )
+
+                Text(item.title)
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundColor(.white)
+                    .lineLimit(3)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            detailPills
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            actionButtons
+
+            Text(item.description)
+                .font(.body)
+                .foregroundColor(.white.opacity(0.86))
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(.horizontal, horizontalPadding)
+        .padding(.top, 52)
         .alert("Mark all episodes as watched?", isPresented: $isConfirmingMarkAllWatched) {
             Button("Cancel", role: .cancel) { }
             Button("Mark All", action: markSeriesWatched)
@@ -87,9 +135,11 @@ struct InfoHeroView: View {
                 help: listToggleHelp,
                 action: collectionActions.togglePlanToWatch
             )
+            #if os(macOS)
             .onHover { hovering in
                 isListButtonHovered = hovering
             }
+            #endif
             .animation(.easeInOut(duration: 0.12), value: isListButtonHovered)
 
             actionButton(
@@ -99,9 +149,11 @@ struct InfoHeroView: View {
                 help: favoriteToggleHelp,
                 action: collectionActions.toggleFavorite
             )
+            #if os(macOS)
             .onHover { hovering in
                 isFavoriteButtonHovered = hovering
             }
+            #endif
             .animation(.easeInOut(duration: 0.12), value: isFavoriteButtonHovered)
 
             actionButton(
@@ -111,9 +163,11 @@ struct InfoHeroView: View {
                 help: watchedToggleHelp,
                 action: handleWatchedAction
             )
+            #if os(macOS)
             .onHover { hovering in
                 isWatchedButtonHovered = hovering
             }
+            #endif
             .animation(.easeInOut(duration: 0.12), value: isWatchedButtonHovered)
 
             actionButton(
@@ -123,9 +177,11 @@ struct InfoHeroView: View {
                 help: droppedToggleHelp,
                 action: handleDroppedAction
             )
+            #if os(macOS)
             .onHover { hovering in
                 isDroppedButtonHovered = hovering
             }
+            #endif
             .animation(.easeInOut(duration: 0.12), value: isDroppedButtonHovered)
         }
     }
@@ -175,9 +231,25 @@ struct InfoHeroView: View {
 
     private func actionIcon(systemImage: String, isSelected: Bool) -> some View {
         Image(systemName: systemImage)
-            .font(.system(size: 16, weight: .semibold))
+            .font(.system(size: actionIconSize, weight: .semibold))
             .foregroundColor(.white.opacity(isSelected ? 0.96 : 0.86))
-            .frame(width: 34, height: 34)
+            .frame(width: actionButtonSize, height: actionButtonSize)
+    }
+
+    private var actionIconSize: CGFloat {
+        #if os(iOS)
+        return 14
+        #else
+        return 16
+        #endif
+    }
+
+    private var actionButtonSize: CGFloat {
+        #if os(iOS)
+        return 30
+        #else
+        return 34
+        #endif
     }
 
     private var listToggleHelp: String {
@@ -228,6 +300,11 @@ struct InfoHeroView: View {
 
     @ViewBuilder
     private var detailPills: some View {
+        #if os(iOS)
+        ScrollView(.horizontal, showsIndicators: false) {
+            detailPillContent
+        }
+        #else
         if #available(macOS 26, *) {
             GlassEffectContainer(spacing: 10) {
                 detailPillContent
@@ -235,6 +312,7 @@ struct InfoHeroView: View {
         } else {
             detailPillContent
         }
+        #endif
     }
 
     private var detailPillContent: some View {
@@ -258,11 +336,35 @@ struct InfoHeroView: View {
 
     private func detailPillText(_ detail: String) -> some View {
         Text(detail)
-            .font(.callout)
+            .font(detailPillFont)
             .fontWeight(.medium)
             .foregroundColor(.white.opacity(0.86))
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
+            .padding(.horizontal, detailPillHorizontalPadding)
+            .padding(.vertical, detailPillVerticalPadding)
+    }
+
+    private var detailPillFont: Font {
+        #if os(iOS)
+        return .caption
+        #else
+        return .callout
+        #endif
+    }
+
+    private var detailPillHorizontalPadding: CGFloat {
+        #if os(iOS)
+        return 10
+        #else
+        return 12
+        #endif
+    }
+
+    private var detailPillVerticalPadding: CGFloat {
+        #if os(iOS)
+        return 5
+        #else
+        return 6
+        #endif
     }
 
     private var details: [String] {

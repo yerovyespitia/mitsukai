@@ -1,5 +1,8 @@
 import AVKit
 import SwiftUI
+#if os(iOS)
+import UIKit
+#endif
 
 struct StreamPlayerView: View {
     let request: StreamPlaybackRequest
@@ -58,11 +61,18 @@ struct StreamPlayerView: View {
         }
         .background(Color.black)
         .contentShape(Rectangle())
+        #if os(macOS)
         .onContinuousHover { phase in
             guard case .active = phase else { return }
             chromeVisibility.reveal()
             scheduleChromeHideIfNeeded()
         }
+        #else
+        .onTapGesture {
+            chromeVisibility.reveal()
+            scheduleChromeHideIfNeeded()
+        }
+        #endif
         .onAppear {
             pendingResumePosition = progressStore.resumePosition(for: request)
             pendingTrackSelections = request.initialTrackSelections ?? progressStore.trackSelections(for: request)
@@ -71,6 +81,7 @@ struct StreamPlayerView: View {
             refreshFullscreenState()
             scheduleChromeHideIfNeeded()
         }
+        #if os(macOS)
         .onReceive(NotificationCenter.default.publisher(for: NSWindow.didEnterFullScreenNotification)) { _ in
             refreshFullscreenState()
         }
@@ -78,6 +89,7 @@ struct StreamPlayerView: View {
             refreshFullscreenState()
             completePendingBackAfterFullscreenExit()
         }
+        #endif
         .task(id: request.id) {
             await loadExternalSubtitles()
         }
@@ -134,7 +146,7 @@ struct StreamPlayerView: View {
         .onReceive(Timer.publish(every: 30, on: .main, in: .common).autoconnect()) { _ in
             saveCurrentProgress()
         }
-        .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: appWillTerminateNotification)) { _ in
             saveCurrentProgress(force: true)
         }
         .onDisappear {
@@ -149,6 +161,7 @@ struct StreamPlayerView: View {
 
     @ViewBuilder
     private var playerSurface: some View {
+        #if os(macOS)
         if activePlaybackEngine == .mpv, let playbackURL = request.source.playbackURL {
             MPVPlayerView(
                 url: playbackURL,
@@ -165,6 +178,15 @@ struct StreamPlayerView: View {
         } else {
             Color.black.ignoresSafeArea()
         }
+        #else
+        if activePlaybackEngine == .native, let player {
+            NativePlayerView(player: player)
+                .background(Color.black)
+                .ignoresSafeArea()
+        } else {
+            Color.black.ignoresSafeArea()
+        }
+        #endif
     }
 
     private var playerChrome: some View {
@@ -319,8 +341,13 @@ struct StreamPlayerView: View {
 
     private var playbackErrorMessage: String? {
         switch activePlaybackEngine {
+        #if os(macOS)
         case .mpv:
             mpvController.errorMessage
+        #else
+        case .mpv:
+            playbackObserver.errorMessage
+        #endif
         case .native:
             playbackObserver.errorMessage
         case nil:
@@ -372,6 +399,14 @@ struct StreamPlayerView: View {
 
     private var nextEpisodeBannerBottomPadding: CGFloat {
         isChromePresented ? 92 : 28
+    }
+
+    private var appWillTerminateNotification: Notification.Name {
+        #if os(iOS)
+        return UIApplication.willTerminateNotification
+        #else
+        return NSApplication.willTerminateNotification
+        #endif
     }
 
     private func scheduleChromeHideIfNeeded() {
@@ -455,6 +490,9 @@ struct StreamPlayerView: View {
             return
         }
 
+        #if os(iOS)
+        startNativePlayback(with: playbackURL)
+        #else
         guard request.source.preferredPlaybackEngine == .native else {
             activePlaybackEngine = .mpv
             playbackObserver.stop()
@@ -463,15 +501,18 @@ struct StreamPlayerView: View {
         }
 
         startNativePlayback(with: playbackURL)
+        #endif
     }
 
     private func startNativeFallbackIfPossible() {
+        #if os(macOS)
         guard activePlaybackEngine == .mpv,
               let playbackURL = request.source.playbackURL,
               player == nil else { return }
 
         mpvController.clearError()
         startNativePlayback(with: playbackURL)
+        #endif
     }
 
     private func startNativePlayback(with playbackURL: URL) {
@@ -822,22 +863,36 @@ struct StreamPlayerView: View {
     }
 
     private func toggleFullscreen() {
+        #if os(macOS)
         performPlayerAction {
             NSApp.keyWindow?.toggleFullScreen(nil)
         }
+        #else
+        performPlayerAction {
+            isFullscreen.toggle()
+        }
+        #endif
     }
 
     private func exitFullscreenIfNeeded() -> Bool {
+        #if os(macOS)
         guard let window = NSApp.keyWindow,
               window.styleMask.contains(.fullScreen) else { return false }
 
         chromeVisibility.reveal()
         window.toggleFullScreen(nil)
         return true
+        #else
+        return false
+        #endif
     }
 
     private func refreshFullscreenState() {
+        #if os(macOS)
         isFullscreen = NSApp.keyWindow?.styleMask.contains(.fullScreen) == true
+        #else
+        isFullscreen = true
+        #endif
     }
 
     private func installNativeTimeObserver(_ player: AVPlayer) {

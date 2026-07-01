@@ -36,9 +36,9 @@ struct StreamPlayerChrome: View {
             Spacer(minLength: 0)
             controls
         }
-        .padding(.horizontal, 24)
+        .padding(.horizontal, horizontalPadding)
         .padding(.top, 22)
-        .padding(.bottom, 18)
+        .padding(.bottom, bottomPadding)
         .background {
             chromeGradient
                 .ignoresSafeArea()
@@ -118,6 +118,14 @@ struct StreamPlayerChrome: View {
     }
 
     private var controls: some View {
+        #if os(iOS)
+        mobileControls
+        #else
+        desktopControls
+        #endif
+    }
+
+    private var desktopControls: some View {
         VStack(spacing: 12) {
             PlayerFlatSlider(
                 value: Binding(
@@ -198,6 +206,62 @@ struct StreamPlayerChrome: View {
         }
     }
 
+    private var mobileControls: some View {
+        VStack(spacing: 14) {
+            PlayerFlatSlider(
+                value: Binding(
+                    get: { min(currentTime, max(duration, 0)) },
+                    set: { onSeek($0) }
+                ),
+                in: 0...max(duration, 1),
+                accessibilityLabel: "Playback position"
+            )
+
+            HStack(spacing: 14) {
+                Text(formatTime(currentTime))
+                    .font(.caption.monospacedDigit().weight(.semibold))
+                    .foregroundColor(.white.opacity(0.86))
+
+                Spacer(minLength: 0)
+
+                if canPlayNextEpisode {
+                    PlayerIconButton(
+                        systemName: "forward.end.fill",
+                        help: "Next episode",
+                        action: onNextEpisode
+                    )
+                }
+
+                PlayerTrackMenu(
+                    systemName: "captions.bubble",
+                    help: "Subtitles",
+                    emptyTitle: "No subtitles",
+                    tracks: subtitleTracks,
+                    onSelect: onSubtitleTrackSelect
+                )
+
+                PlayerTrackMenu(
+                    systemName: "waveform",
+                    help: "Audio",
+                    emptyTitle: "No audio tracks",
+                    tracks: audioTracks,
+                    onSelect: onAudioTrackSelect
+                )
+
+                PlayerIconButton(
+                    systemName: "sidebar.right",
+                    help: canShowEpisodeSidebar ? "Episodes" : "Episodes are available for series",
+                    isEnabled: canShowEpisodeSidebar,
+                    action: onEpisodeSidebarToggle
+                )
+
+                Text(formatTime(duration))
+                    .font(.caption.monospacedDigit().weight(.semibold))
+                    .foregroundColor(.white.opacity(0.58))
+            }
+        }
+    }
+
     private var chromeGradient: some View {
         VStack(spacing: 0) {
             LinearGradient(
@@ -221,6 +285,22 @@ struct StreamPlayerChrome: View {
 
     private var fullscreenIconName: String {
         isFullscreen ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right"
+    }
+
+    private var horizontalPadding: CGFloat {
+        #if os(iOS)
+        return 18
+        #else
+        return 24
+        #endif
+    }
+
+    private var bottomPadding: CGFloat {
+        #if os(iOS)
+        return 34
+        #else
+        return 18
+        #endif
     }
 
     private var displayedVolume: Double {
@@ -255,9 +335,11 @@ struct StreamPlayerChrome: View {
             }
             .buttonStyle(.plain)
             .contentShape(Circle())
+            #if os(macOS)
             .onHover { hovering in
                 hoveredCircularButton = hovering ? hoverID : nil
             }
+            #endif
             .animation(.easeInOut(duration: 0.12), value: hoveredCircularButton)
             .help(help)
             .accessibilityLabel(help)
@@ -268,9 +350,11 @@ struct StreamPlayerChrome: View {
             }
             .buttonStyle(.plain)
             .contentShape(Circle())
+            #if os(macOS)
             .onHover { hovering in
                 hoveredCircularButton = hovering ? hoverID : nil
             }
+            #endif
             .animation(.easeInOut(duration: 0.12), value: hoveredCircularButton)
             .help(help)
             .accessibilityLabel(help)
