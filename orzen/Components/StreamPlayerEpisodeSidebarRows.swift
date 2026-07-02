@@ -114,7 +114,7 @@ struct StreamPlayerEpisodeSidebarSourceRow: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
-            Image(systemName: source.playbackURL == nil ? "exclamationmark.triangle.fill" : "play.circle.fill")
+            Image(systemName: sourceIconName)
                 .font(.system(size: 18, weight: .semibold))
                 .foregroundColor(.white.opacity(0.68))
                 .frame(width: 24, height: 24)
@@ -129,6 +129,9 @@ struct StreamPlayerEpisodeSidebarSourceRow: View {
                     .font(.caption2.weight(.medium))
                     .foregroundColor(.white.opacity(0.54))
                     .lineLimit(1)
+
+                compatibilityMessage
+                compatibilityDetail
             }
 
             Spacer(minLength: 0)
@@ -171,6 +174,49 @@ struct StreamPlayerEpisodeSidebarSourceRow: View {
         }
 
         return Color.white.opacity(isHovered ? 0.11 : 0.05)
+    }
+
+    private var sourceIconName: String {
+        #if os(iOS)
+        switch NativePlaybackCompatibilityResolver.compatibility(for: source) {
+        case .unsupported:
+            return "exclamationmark.triangle.fill"
+        case .unknown:
+            return "questionmark.circle.fill"
+        case .supported, .likely:
+            return "play.circle.fill"
+        }
+        #else
+        return source.playbackURL == nil ? "exclamationmark.triangle.fill" : "play.circle.fill"
+        #endif
+    }
+
+    @ViewBuilder
+    private var compatibilityMessage: some View {
+        #if os(iOS)
+        let compatibility = NativePlaybackCompatibilityResolver.compatibility(for: source)
+        if let title = compatibility.badgeTitle {
+            Text(title)
+                .font(.caption2.weight(.semibold))
+                .foregroundColor(.white.opacity(compatibility.canAttemptPlayback ? 0.7 : 0.5))
+                .lineLimit(1)
+        }
+        #endif
+    }
+
+    @ViewBuilder
+    private var compatibilityDetail: some View {
+        #if os(iOS)
+        let compatibility = NativePlaybackCompatibilityResolver.compatibility(for: source)
+        if !compatibility.canAttemptPlayback,
+           let message = compatibility.message {
+            Text(message)
+                .font(.caption2)
+                .foregroundColor(.white.opacity(0.46))
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        #endif
     }
 }
 

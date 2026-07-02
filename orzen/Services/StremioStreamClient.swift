@@ -6,17 +6,61 @@ struct StreamSource: Identifiable, Codable, Hashable, Sendable {
     let title: String
     let description: String
     let metadata: [String]
+    let compatibilityHints: [String]
     let sourceCategory: StreamSourceCategory
     let playbackURL: URL?
+
+    init(
+        id: String,
+        addonName: String,
+        title: String,
+        description: String,
+        metadata: [String],
+        compatibilityHints: [String] = [],
+        sourceCategory: StreamSourceCategory,
+        playbackURL: URL?
+    ) {
+        self.id = id
+        self.addonName = addonName
+        self.title = title
+        self.description = description
+        self.metadata = metadata
+        self.compatibilityHints = compatibilityHints
+        self.sourceCategory = sourceCategory
+        self.playbackURL = playbackURL
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case addonName
+        case title
+        case description
+        case metadata
+        case compatibilityHints
+        case sourceCategory
+        case playbackURL
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        addonName = try container.decode(String.self, forKey: .addonName)
+        title = try container.decode(String.self, forKey: .title)
+        description = try container.decode(String.self, forKey: .description)
+        metadata = try container.decode([String].self, forKey: .metadata)
+        compatibilityHints = try container.decodeIfPresent([String].self, forKey: .compatibilityHints) ?? []
+        sourceCategory = try container.decode(StreamSourceCategory.self, forKey: .sourceCategory)
+        playbackURL = try container.decodeIfPresent(URL.self, forKey: .playbackURL)
+    }
 
     var preferredPlaybackEngine: StreamPlaybackEngine {
         guard playbackURL != nil else { return .native }
         return .mpv
     }
 
-    var nativePlaybackError: String? {
+    var playbackURLError: String? {
         guard let playbackURL else {
-            return "This source does not expose a direct video URL. The native player can only open direct HTTP or HTTPS video streams returned by the addon."
+            return "This source does not expose a direct video URL. Orzen can only open direct HTTP or HTTPS video streams returned by the addon."
         }
 
         guard ["http", "https"].contains(playbackURL.scheme?.lowercased()) else {
@@ -26,6 +70,18 @@ struct StreamSource: Identifiable, Codable, Hashable, Sendable {
         return nil
     }
 
+    var nativePlaybackError: String? {
+        if let playbackURLError {
+            return playbackURLError
+        }
+
+        let compatibility = NativePlaybackCompatibilityResolver.compatibility(for: self)
+        guard !compatibility.canAttemptPlayback else {
+            return nil
+        }
+
+        return compatibility.message
+    }
 }
 
 enum StreamSourceCategory: String, Codable, Hashable, Sendable {
@@ -87,6 +143,7 @@ private struct StremioStream: Decodable {
     let url: URL?
     let infoHash: String?
     let fileIdx: Int?
+    let behaviorHints: StremioStreamBehaviorHints?
 
     func source(
         addonName: String,
@@ -109,6 +166,7 @@ private struct StremioStream: Decodable {
             title: resolvedTitle,
             description: resolvedDescription.isEmpty ? "No source details available." : resolvedDescription,
             metadata: metadata(addonName: addonName, titleLines: lines),
+            compatibilityHints: compatibilityHints(titleLines: lines),
             sourceCategory: sourceCategory,
             playbackURL: url
         )
@@ -127,4 +185,25 @@ private struct StremioStream: Decodable {
 
         return values
     }
+
+    private func compatibilityHints(titleLines: [String]) -> [String] {
+        var values = titleLines
+        if let name {
+            values.append(name)
+        }
+        if let filename = behaviorHints?.filename {
+            values.append(filename)
+        }
+        if let videoHash = behaviorHints?.videoHash {
+            values.append(videoHash)
+        }
+        return values
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+    }
+}
+
+private struct StremioStreamBehaviorHints: Decodable {
+    let filename: String?
+    let videoHash: String?
 }

@@ -23,6 +23,9 @@ struct StreamPlayerView: View {
     @State private var nativeSubtitleTracks: [PlayerMediaTrack] = []
     @State private var externalSubtitleTracks: [ExternalSubtitleTrack] = []
     @State private var nativeTimeObserver: Any?
+    @State private var isPreparingNativePlayback = false
+    @State private var isResolvingNativeFallback = false
+    @State private var nativeStartupTimeoutWorkItem: DispatchWorkItem?
     @State private var isFullscreen = false
     @State private var isClosing = false
     @State private var shouldBackAfterFullscreenExit = false
@@ -42,6 +45,8 @@ struct StreamPlayerView: View {
     @StateObject private var playbackObserver = StreamPlaybackObserver()
     @StateObject private var mpvController = MPVPlaybackController()
     @StateObject private var chromeVisibility = StreamPlayerChromeVisibilityController()
+
+    private let nativeStartupMinimumProgress = 1.0
 
     init(request: StreamPlaybackRequest, onBack: @escaping () -> Void) {
         self.request = request
@@ -113,6 +118,7 @@ struct StreamPlayerView: View {
                 scheduleChromeHideIfNeeded()
             } else {
                 chromeVisibility.keepVisible()
+                startNativeFallbackAfterRuntimeErrorIfPossible()
             }
         }
         .onChange(of: mpvController.didReachEnd) { _, didReachEnd in
@@ -152,6 +158,7 @@ struct StreamPlayerView: View {
         .onDisappear {
             saveCurrentProgress(force: true)
             chromeVisibility.cancelAutoHide()
+            cancelNativeStartupTimeout()
             player?.pause()
             removeNativeTimeObserver()
             playbackObserver.stop()
@@ -271,7 +278,7 @@ struct StreamPlayerView: View {
 
     @ViewBuilder
     private var startingOverlay: some View {
-        if activePlaybackEngine == .mpv, mpvController.isStarting {
+        if isPreparingPlayback {
             ProgressView()
                 .controlSize(.large)
                 .tint(.white)
@@ -353,6 +360,10 @@ struct StreamPlayerView: View {
         case nil:
             playbackObserver.errorMessage ?? mpvController.errorMessage
         }
+    }
+
+    private var isPreparingPlayback: Bool {
+        isPreparingNativePlayback || (activePlaybackEngine == .mpv && mpvController.isStarting)
     }
 
     private var isChromePresented: Bool {
@@ -478,10 +489,10 @@ struct StreamPlayerView: View {
     }
 
     private func startPlaybackIfPossible() {
-        guard player == nil else { return }
+        guard player == nil, !isPreparingNativePlayback else { return }
 
-        if let nativePlaybackError = request.source.nativePlaybackError {
-            playbackObserver.errorMessage = nativePlaybackError
+        if let playbackURLError = request.source.playbackURLError {
+            playbackObserver.errorMessage = playbackURLError
             return
         }
 
@@ -491,6 +502,11 @@ struct StreamPlayerView: View {
         }
 
         #if os(iOS)
+        if let nativePlaybackError = request.source.nativePlaybackError {
+            playbackObserver.errorMessage = nativePlaybackError
+            return
+        }
+
         startNativePlayback(with: playbackURL)
         #else
         guard request.source.preferredPlaybackEngine == .native else {
@@ -516,7 +532,116 @@ struct StreamPlayerView: View {
     }
 
     private func startNativePlayback(with playbackURL: URL) {
-        let item = AVPlayerItem(url: playbackURL)
+        isPreparingNativePlayback = true
+        playbackObserver.errorMessage = nil
+
+        Task {
+            let result = await NativePlaybackCompatibilityResolver.validatedAsset(for: playbackURL)
+
+            await MainActor.run {
+                isPreparingNativePlayback = false
+                guard !isClosing, player == nil else { return }
+
+                if let asset = result.asset {
+                    startNativePlayback(with: asset)
+                } else {
+                    handleNativeValidationFailure(
+                        result.errorMessage ?? "iOS could not verify this stream before playback."
+                    )
+                }
+            }
+        }
+    }
+
+    private func handleNativeValidationFailure(_ message: String) {
+        #if os(iOS)
+        Task {
+            guard let fallbackRequest = await fallbackPlaybackRequestAfterNativeFailure() else {
+                await MainActor.run {
+                    activePlaybackEngine = .native
+                    playbackObserver.errorMessage = message
+                    chromeVisibility.keepVisible()
+                }
+                return
+            }
+
+            await MainActor.run {
+                StreamPlaybackStore.shared.request = fallbackRequest
+            }
+        }
+        #else
+        activePlaybackEngine = .native
+        playbackObserver.errorMessage = message
+        chromeVisibility.keepVisible()
+        #endif
+    }
+
+    private func startNativeFallbackAfterRuntimeErrorIfPossible() {
+        #if os(iOS)
+        guard activePlaybackEngine == .native,
+              player != nil,
+              !isPreparingNativePlayback,
+              !isResolvingNativeFallback else {
+            return
+        }
+
+        isResolvingNativeFallback = true
+
+        Task {
+            let fallbackRequest = await fallbackPlaybackRequestAfterNativeFailure()
+
+            await MainActor.run {
+                isResolvingNativeFallback = false
+                guard !isClosing, let fallbackRequest else { return }
+
+                player?.pause()
+                removeNativeTimeObserver()
+                playbackObserver.stop()
+                cancelNativeStartupTimeout()
+                player = nil
+                StreamPlaybackStore.shared.request = fallbackRequest
+            }
+        }
+        #endif
+    }
+
+    private func fallbackPlaybackRequestAfterNativeFailure() async -> StreamPlaybackRequest? {
+        #if os(iOS)
+        var attemptedSourceIDs = request.attemptedSourceIDs
+        attemptedSourceIDs.insert(request.source.id)
+
+        let sources = await StreamSourceResolver.fetchAllSources(
+            from: addonStore.streamAddons,
+            type: request.contentType,
+            id: request.contentID
+        )
+        let candidates = sources.filter { source in
+            !attemptedSourceIDs.contains(source.id)
+                && NativePlaybackCompatibilityResolver.compatibility(for: source).canAttemptPlayback
+        }
+
+        guard let fallbackSource = NativePlaybackCompatibilityResolver.bestNativeSource(in: candidates) else {
+            return nil
+        }
+
+        return StreamPlaybackRequest(
+            source: fallbackSource,
+            title: request.title,
+            subtitle: request.subtitle,
+            contentID: request.contentID,
+            contentType: request.contentType,
+            item: request.item,
+            episode: request.episode,
+            initialTrackSelections: request.initialTrackSelections,
+            attemptedSourceIDs: attemptedSourceIDs
+        )
+        #else
+        return nil
+        #endif
+    }
+
+    private func startNativePlayback(with asset: AVURLAsset) {
+        let item = AVPlayerItem(asset: asset)
         let player = AVPlayer(playerItem: item)
         activePlaybackEngine = .native
         self.player = player
@@ -527,6 +652,7 @@ struct StreamPlayerView: View {
         installNativeTimeObserver(player)
         refreshNativeMediaTracks()
         player.play()
+        scheduleNativeStartupTimeout()
     }
 
     private func applySavedProgressIfPossible() {
@@ -908,6 +1034,9 @@ struct StreamPlayerView: View {
                 nativeIsPaused = player?.timeControlStatus != .playing
                 nativeVolume = Double((player?.volume ?? 1) * 100)
                 nativeIsMuted = player?.isMuted ?? false
+                if nativeTime > nativeStartupMinimumProgress {
+                    cancelNativeStartupTimeout()
+                }
                 refreshNativeMediaTracks()
             }
         }
@@ -918,6 +1047,57 @@ struct StreamPlayerView: View {
             player?.removeTimeObserver(nativeTimeObserver)
             self.nativeTimeObserver = nil
         }
+    }
+
+    private func scheduleNativeStartupTimeout() {
+        #if os(iOS)
+        cancelNativeStartupTimeout()
+        let timeoutWorkItem = DispatchWorkItem {
+            handleNativeStartupTimeoutIfNeeded()
+        }
+        nativeStartupTimeoutWorkItem = timeoutWorkItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 20, execute: timeoutWorkItem)
+        #endif
+    }
+
+    private func cancelNativeStartupTimeout() {
+        nativeStartupTimeoutWorkItem?.cancel()
+        nativeStartupTimeoutWorkItem = nil
+    }
+
+    private func handleNativeStartupTimeoutIfNeeded() {
+        #if os(iOS)
+        guard activePlaybackEngine == .native,
+              player != nil,
+              nativeTime <= nativeStartupMinimumProgress,
+              !isResolvingNativeFallback else {
+            return
+        }
+
+        isResolvingNativeFallback = true
+
+        Task {
+            let fallbackRequest = await fallbackPlaybackRequestAfterNativeFailure()
+
+            await MainActor.run {
+                isResolvingNativeFallback = false
+
+                player?.pause()
+                removeNativeTimeObserver()
+                playbackObserver.stop()
+                cancelNativeStartupTimeout()
+
+                if let fallbackRequest {
+                    player = nil
+                    StreamPlaybackStore.shared.request = fallbackRequest
+                } else {
+                    activePlaybackEngine = .native
+                    playbackObserver.errorMessage = "This stream did not start in time. It may use codecs, headers, or a server response that AVPlayer on iOS cannot handle reliably."
+                    chromeVisibility.keepVisible()
+                }
+            }
+        }
+        #endif
     }
 
     private func refreshNativeMediaTracks() {

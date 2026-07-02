@@ -9,7 +9,7 @@ struct SourceRow: View {
                 SourceRowStyle.cardShape
                     .fill(Color.white.opacity(0.1))
 
-                Image(systemName: source.playbackURL == nil ? "exclamationmark.triangle.fill" : "play.circle.fill")
+                Image(systemName: sourceIconName)
                     .font(.system(size: iconSize, weight: .semibold))
                     .foregroundColor(.white.opacity(0.72))
             }
@@ -31,6 +31,9 @@ struct SourceRow: View {
                         .foregroundColor(.white.opacity(0.62))
                         .lineLimit(1)
                 }
+
+                compatibilityBadge
+                compatibilityDetail
 
                 Text(source.description)
                     .font(descriptionFont)
@@ -125,6 +128,100 @@ struct SourceRow: View {
         return 3
         #endif
     }
+
+    private var sourceIconName: String {
+        #if os(iOS)
+        switch NativePlaybackCompatibilityResolver.compatibility(for: source) {
+        case .unsupported:
+            return "exclamationmark.triangle.fill"
+        case .unknown:
+            return "questionmark.circle.fill"
+        case .supported, .likely:
+            return "play.circle.fill"
+        }
+        #else
+        return source.playbackURL == nil ? "exclamationmark.triangle.fill" : "play.circle.fill"
+        #endif
+    }
+
+    @ViewBuilder
+    private var compatibilityBadge: some View {
+        #if os(iOS)
+        let compatibility = NativePlaybackCompatibilityResolver.compatibility(for: source)
+        if let title = compatibility.badgeTitle {
+            Text(title)
+                .font(.caption2.weight(.semibold))
+                .foregroundColor(badgeForeground(for: compatibility))
+                .lineLimit(1)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(badgeBackground(for: compatibility), in: Capsule())
+                .overlay {
+                    Capsule().stroke(badgeStroke(for: compatibility), lineWidth: 1)
+                }
+                .help(compatibility.message ?? "This source is compatible with native iOS playback.")
+        }
+        #endif
+    }
+
+    @ViewBuilder
+    private var compatibilityDetail: some View {
+        #if os(iOS)
+        let compatibility = NativePlaybackCompatibilityResolver.compatibility(for: source)
+        if shouldShowCompatibilityDetail(for: compatibility),
+           let message = compatibility.message {
+            Text(message)
+                .font(.caption2)
+                .foregroundColor(.white.opacity(0.58))
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        #endif
+    }
+
+    #if os(iOS)
+    private func shouldShowCompatibilityDetail(for compatibility: NativePlaybackCompatibility) -> Bool {
+        switch compatibility {
+        case .unknown, .unsupported:
+            return true
+        case .supported, .likely:
+            return false
+        }
+    }
+
+    private func badgeForeground(for compatibility: NativePlaybackCompatibility) -> Color {
+        switch compatibility {
+        case .supported, .likely:
+            return .black.opacity(0.84)
+        case .unknown:
+            return .white.opacity(0.84)
+        case .unsupported:
+            return .white.opacity(0.76)
+        }
+    }
+
+    private func badgeBackground(for compatibility: NativePlaybackCompatibility) -> Color {
+        switch compatibility {
+        case .supported, .likely:
+            return .white.opacity(0.86)
+        case .unknown:
+            return .white.opacity(0.1)
+        case .unsupported:
+            return .white.opacity(0.065)
+        }
+    }
+
+    private func badgeStroke(for compatibility: NativePlaybackCompatibility) -> Color {
+        switch compatibility {
+        case .supported, .likely:
+            return .white.opacity(0.18)
+        case .unknown:
+            return .white.opacity(0.16)
+        case .unsupported:
+            return .white.opacity(0.11)
+        }
+    }
+    #endif
 }
 
 private enum SourceRowStyle {

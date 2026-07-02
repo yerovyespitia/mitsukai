@@ -9,6 +9,7 @@ struct StreamPlaybackRequest: Identifiable {
     let item: CatalogItem?
     let episode: CatalogEpisode?
     let initialTrackSelections: PlaybackTrackSelections?
+    let attemptedSourceIDs: Set<StreamSource.ID>
 
     init(
         source: StreamSource,
@@ -18,7 +19,8 @@ struct StreamPlaybackRequest: Identifiable {
         contentType: CinemetaType,
         item: CatalogItem? = nil,
         episode: CatalogEpisode? = nil,
-        initialTrackSelections: PlaybackTrackSelections? = nil
+        initialTrackSelections: PlaybackTrackSelections? = nil,
+        attemptedSourceIDs: Set<StreamSource.ID> = []
     ) {
         self.source = source
         self.title = title
@@ -28,6 +30,7 @@ struct StreamPlaybackRequest: Identifiable {
         self.item = item
         self.episode = episode
         self.initialTrackSelections = initialTrackSelections
+        self.attemptedSourceIDs = attemptedSourceIDs
     }
 
     var id: String {
